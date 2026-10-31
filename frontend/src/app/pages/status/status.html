@@ -1,0 +1,706 @@
+<div class="status-page">
+  <div class="container status-container">
+
+    <!-- Top Breadcrumb & User Info Header -->
+    <header class="page-top-bar">
+      <nav aria-label="Breadcrumb" class="breadcrumb">
+        <a routerLink="/">Home</a>
+        <span class="sep" aria-hidden="true">&rsaquo;</span>
+        <span class="current">Application Status</span>
+      </nav>
+      <div class="applicant-badge">
+        <span class="badge-dot"></span>
+        <span>Candidate: <strong>{{ authService.currentUser()?.name }}</strong></span>
+        <span class="badge-role">Applicant</span>
+      </div>
+    </header>
+
+    <!-- Initial Loading State -->
+    @if (isLoadingInitial()) {
+      <div class="loading-state" role="status" aria-live="polite">
+        <div class="spinner-large" aria-hidden="true"></div>
+        <p class="loading-text">Retrieving your admission application status...</p>
+      </div>
+    }
+
+    <!-- Initial Error State (Loading failed) -->
+    @else if (errorMessage() && !existingApplication()) {
+      <div class="app-card error-card" role="alert">
+        <div class="error-hero">
+          <div class="error-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <h2 class="error-title">Unable to Retrieve Application Status</h2>
+          <p class="error-desc">{{ errorMessage() }}</p>
+          <div class="error-actions">
+            <button type="button" class="btn btn-primary" (click)="retryLoading()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              <span>Retry Loading</span>
+            </button>
+            <a routerLink="/" class="btn btn-outline-navy">Return to Home</a>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Empty State: No Application Submitted Yet -->
+    @else if (!existingApplication()) {
+      <div class="app-card empty-app-card" role="region" aria-label="No Application Found">
+        <div class="empty-app-hero">
+          <div class="empty-app-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <h2 class="empty-app-title">No Admission Application Submitted Yet</h2>
+          <p class="empty-app-desc">
+            You do not currently have an active admission application on record for Academic Session 2026–2027. Please complete your application form and upload all mandatory documents to begin scrutiny.
+          </p>
+          <div class="empty-app-actions">
+            <a routerLink="/application" class="btn btn-primary btn-lg">
+              <span>Start Online Application</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+            <a routerLink="/" class="btn btn-outline-navy btn-lg">Explore Programmes</a>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Authoritative Application Record Found -> Full Status Dashboard -->
+    @else if (existingApplication(); as app) {
+      <div class="app-card applicant-dashboard" aria-labelledby="status-dashboard-title">
+
+        <!-- Action / Replacement Alert -->
+        @if (documentActionSuccess()) {
+          <div class="alert alert-success" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <span>{{ documentActionSuccess() }}</span>
+          </div>
+        }
+
+        <!-- Status Header Bar -->
+        <div class="card-status-header">
+          <div class="header-left">
+            <span class="badge-pill badge-status-{{ app.status | lowercase | slice:0:3 }}" [attr.aria-label]="'Overall Application Status: ' + app.status">
+              {{ app.status }}
+            </span>
+            <div class="app-id-wrap">
+              <span class="app-id-label">Application ID:</span>
+              <code class="app-id-code">{{ app.applicationId }}</code>
+              <button
+                type="button"
+                class="btn-copy-id"
+                (click)="copyApplicationId(app.applicationId)"
+                [title]="copiedAppId() ? 'Copied to clipboard!' : 'Copy Application ID'"
+                aria-label="Copy Application ID"
+              >
+                @if (copiedAppId()) {
+                  <span class="copied-badge">Copied!</span>
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                }
+              </button>
+            </div>
+          </div>
+          <div class="header-right">
+            <button
+              type="button"
+              class="btn btn-outline-navy btn-sm btn-refresh-status"
+              (click)="refreshStatus()"
+              [disabled]="isRefreshing()"
+              aria-label="Refresh application status and document reviews"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [class.spinning]="isRefreshing()" aria-hidden="true">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              <span>{{ isRefreshing() ? 'Refreshing...' : 'Refresh Status' }}</span>
+            </button>
+            <span class="submitted-date">Submitted on {{ app.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </div>
+
+        <!-- Admission Decision & Status Banners -->
+        @if (app.status === 'Selected') {
+          <div class="decision-banner banner-selected" role="region" aria-label="Admission Decision Selected">
+            <div class="decision-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+              </svg>
+            </div>
+            <div class="decision-content">
+              <span class="decision-badge">Admissions Committee Decision</span>
+              <h2 id="status-dashboard-title" class="decision-title">Congratulations! Provisional Admission Selected</h2>
+              <p class="decision-desc">
+                Your admission application for <strong>{{ app.selectedProgramme }}</strong> has been officially approved by the university selection board.
+              </p>
+              @if (app.decisionRemarks) {
+                <div class="decision-remarks-box">
+                  <strong>Admissions Decision Remarks:</strong> {{ app.decisionRemarks }}
+                </div>
+              }
+              <div class="decision-instructions">
+                <strong>Next Steps:</strong> Please check your registered email (<strong>{{ authService.currentUser()?.email }}</strong>) for formal offer documents, provisional enrollment deadlines, and fee remittance instructions.
+              </div>
+            </div>
+          </div>
+        } @else if (app.status === 'Rejected') {
+          <div class="decision-banner banner-rejected" role="alert" aria-label="Application Decision Notice">
+            <div class="decision-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+            </div>
+            <div class="decision-content">
+              <span class="decision-badge badge-danger">Application Review Decision</span>
+              <h2 id="status-dashboard-title" class="decision-title">Application Not Approved at Current Stage</h2>
+              <p class="decision-desc">
+                Your admission application for <strong>{{ app.selectedProgramme }}</strong> could not be approved at this evaluation round.
+              </p>
+              @if (app.decisionRemarks || app.verificationRemarks) {
+                <div class="decision-remarks-box rejection-remarks">
+                  <strong>Review Remarks:</strong> {{ app.decisionRemarks || app.verificationRemarks }}
+                </div>
+              }
+              <div class="decision-instructions">
+                If your application was rejected due to unacceptable or blurry documents, you may submit replacement uploads below to request re-scrutiny. For further assistance, contact <strong>admissions&#64;uem.edu.in</strong>.
+              </div>
+            </div>
+          </div>
+        } @else if (app.status === 'Verified') {
+          <div class="decision-banner banner-verified" role="region" aria-label="Verification Completed">
+            <div class="decision-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <div class="decision-content">
+              <span class="decision-badge">Document Verification Completed</span>
+              <h2 id="status-dashboard-title" class="decision-title">All Credentials Verified Successfully</h2>
+              <p class="decision-desc">
+                Your academic transcripts and credentials for <strong>{{ app.selectedProgramme }}</strong> have been verified by the department scrutiny officer. Your profile is now under final merit consideration by the Central Admissions Committee.
+              </p>
+              @if (app.verificationRemarks) {
+                <div class="decision-remarks-box">
+                  <strong>Verification Officer Remarks:</strong> {{ app.verificationRemarks }}
+                </div>
+              }
+            </div>
+          </div>
+        } @else if (app.status === 'Under Review') {
+          <!-- Action Required: Document Rectification Warning Card -->
+          @if (requiresRectification()) {
+            <div class="decision-banner banner-rectification" role="alert" aria-label="Action Required: Document Rectification Needed">
+              <div class="decision-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+              </div>
+              <div class="decision-content">
+                <span class="decision-badge badge-danger">Action Required</span>
+                <h2 class="decision-title">Action Required: Document Rectification Needed</h2>
+                <p class="decision-desc">
+                  One or more uploaded documents were rejected during scrutiny and require your attention. You must upload corrected replacement files for
+                  <strong>{{ rectificationRequiredDocTypes().length }}</strong> document {{ rectificationRequiredDocTypes().length === 1 ? 'type' : 'types' }}
+                  ({{ rectificationRequiredDocTypes().join(', ') }}) to satisfy admission scrutiny requirements.
+                </p>
+                <div class="decision-instructions">
+                  Please scroll to the <strong>Admission Document Scrutiny &amp; Verification Tracker</strong> below and click <strong>Replace / Upload Correction</strong> for each rejected document.
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="decision-banner banner-review" role="region" aria-label="Application Under Review">
+            <div class="decision-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div class="decision-content">
+              <span class="decision-badge">Scrutiny In Progress</span>
+              <h2 id="status-dashboard-title" class="decision-title">Credentials Under Verification</h2>
+              <p class="decision-desc">
+                Verification officers are actively inspecting your uploaded academic transcripts and certificates. Any remarks or required rectifications will appear in the live document tracker below.
+              </p>
+              @if (app.verificationRemarks) {
+                <div class="decision-remarks-box">
+                  <strong>Review Observation:</strong> {{ app.verificationRemarks }}
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <!-- Default Submitted Banner -->
+          <div class="existing-banner">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <div>
+              <h2 id="status-dashboard-title" class="banner-title">Admission Application on Record</h2>
+              <p class="banner-desc">
+                Your admission application for <strong>{{ app.selectedProgramme }}</strong> is registered and queued for verification officer review.
+              </p>
+            </div>
+          </div>
+        }
+
+        <!-- LIVE DOCUMENT-REVIEW STATISTICS CARDS (Requirement 1) -->
+        <section class="live-stats-section" aria-labelledby="stats-heading">
+          <div class="section-title-row">
+            <h3 id="stats-heading" class="live-stats-title">Document Verification Summary</h3>
+            <span class="stats-live-pill">Live Review Metrics</span>
+          </div>
+
+          <div class="stats-cards-grid">
+            <!-- Total Active Documents -->
+            <div class="stat-card card-total">
+              <div class="stat-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+              </div>
+              <div class="stat-data">
+                <span class="stat-value">{{ docStats().total }}</span>
+                <span class="stat-label">Total Documents</span>
+              </div>
+            </div>
+
+            <!-- Verified Documents -->
+            <div class="stat-card card-verified">
+              <div class="stat-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+              <div class="stat-data">
+                <span class="stat-value">{{ docStats().verified }}</span>
+                <span class="stat-label">Verified</span>
+              </div>
+            </div>
+
+            <!-- Pending Review -->
+            <div class="stat-card card-pending">
+              <div class="stat-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <div class="stat-data">
+                <span class="stat-value">{{ docStats().pending }}</span>
+                <span class="stat-label">Pending Review</span>
+              </div>
+            </div>
+
+            <!-- Rejected / Needs Rectification -->
+            <div class="stat-card card-rejected">
+              <div class="stat-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <div class="stat-data">
+                <span class="stat-value">{{ docStats().rejected }}</span>
+                <span class="stat-label">Requires Attention</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Review Completion Progress Bar -->
+          <div class="progress-bar-container">
+            <div class="progress-info-row">
+              <span class="progress-title">Overall Scrutiny Progress</span>
+              <span class="progress-fraction">
+                {{ docStats().reviewed }} of {{ docStats().total }} documents reviewed ({{ docStats().completionPercentage }}%)
+              </span>
+            </div>
+            <div class="progress-track" role="progressbar" [attr.aria-valuenow]="docStats().completionPercentage" aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-fill" [style.width.%]="docStats().completionPercentage"></div>
+            </div>
+            @if (historicalDocuments().length > 0) {
+              <p class="replaced-note">
+                Note: {{ historicalDocuments().length }} replaced document(s) have been superseded and excluded from active review counts.
+              </p>
+            }
+          </div>
+        </section>
+
+        <!-- SUBMITTED DOCUMENTS & CORRECTIONS TABLE -->
+        <section class="docs-management-card" aria-labelledby="docs-list-heading">
+          <div class="docs-card-header">
+            <div class="docs-header-text">
+              <h3 id="docs-list-heading" class="docs-section-title">Submitted Documents &amp; Verification Status</h3>
+              <p class="docs-section-desc">
+                Review your uploaded credentials and officer verification remarks. If any document is marked <strong>Rejected</strong>, use the <strong>Upload Correction</strong> action to submit a rectified file.
+              </p>
+            </div>
+            <div class="docs-count-pill">
+              <span class="count-num">{{ activeDocuments().length }}</span>
+              <span class="count-label">Active Document(s)</span>
+            </div>
+          </div>
+
+          @if (isLoadingDocuments()) {
+            <div class="docs-loading">
+              <span class="spinner-sm"></span>
+              <span>Loading your uploaded documents...</span>
+            </div>
+          } @else if (activeDocuments().length === 0) {
+            <div class="docs-empty-state">
+              <div class="empty-icon" aria-hidden="true">📄</div>
+              <p class="empty-title">No active documents on record</p>
+            </div>
+          } @else {
+            <div class="docs-table-responsive">
+              <table class="docs-table" aria-label="Submitted Candidate Documents">
+                <thead>
+                  <tr>
+                    <th scope="col">Document Type</th>
+                    <th scope="col">Original Filename</th>
+                    <th scope="col">File Size</th>
+                    <th scope="col">Upload Date</th>
+                    <th scope="col">Verification Status</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (doc of activeDocuments(); track doc._id) {
+                    <tr [class.row-rejected]="doc.verificationStatus === 'Rejected'">
+                      <td class="cell-doc-type">
+                        <span class="doc-type-badge">{{ doc.documentType }}</span>
+                      </td>
+                      <td class="cell-filename">
+                        <span class="filename-text" [title]="doc.originalFilename">{{ doc.originalFilename }}</span>
+                      </td>
+                      <td class="cell-filesize">{{ formatFileSize(doc.fileSize) }}</td>
+                      <td class="cell-date">{{ doc.createdAt | date:'mediumDate' }}</td>
+                      <td class="cell-status">
+                        <span class="badge-status-pill badge-status-{{ doc.verificationStatus | lowercase }}">
+                          @if (doc.verificationStatus === 'Pending') {
+                            <span class="status-dot dot-pending"></span>
+                          } @else if (doc.verificationStatus === 'Verified') {
+                            <span class="status-dot dot-verified"></span>
+                          } @else {
+                            <span class="status-dot dot-rejected"></span>
+                          }
+                          {{ doc.verificationStatus }}
+                        </span>
+                        @if (doc.verificationRemarks) {
+                          <div class="status-remarks" [title]="doc.verificationRemarks">
+                            <strong>Remarks:</strong> {{ doc.verificationRemarks }}
+                          </div>
+                        }
+                      </td>
+                      <td class="cell-actions">
+                        <div class="action-btn-group">
+                          <button
+                            type="button"
+                            class="btn btn-outline-navy btn-xs"
+                            (click)="downloadDocument(doc)"
+                            [attr.aria-label]="'Download ' + doc.originalFilename"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                              <polyline points="7 10 12 15 17 10"></polyline>
+                              <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            <span>Download</span>
+                          </button>
+
+                          <!-- Correction / Replacement for Rejected documents -->
+                          @if (doc.verificationStatus === 'Rejected' && app.status !== 'Selected') {
+                            <button
+                              type="button"
+                              class="btn btn-danger btn-xs btn-replace-action"
+                              (click)="openReplaceModal(doc)"
+                              [attr.aria-label]="'Upload correction or replacement for ' + doc.documentType"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                              </svg>
+                              <span>Upload Correction</span>
+                            </button>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+
+          <!-- Collapsible Replaced Documents Audit History -->
+          @if (historicalDocuments().length > 0) {
+            <div class="historical-docs-section">
+              <button
+                type="button"
+                class="btn-toggle-historical"
+                (click)="toggleHistoricalDocs()"
+                [attr.aria-expanded]="showHistoricalDocs()"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" [class.rotated]="showHistoricalDocs()">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+                <span>Previously Replaced Documents ({{ historicalDocuments().length }} historical versions)</span>
+              </button>
+
+              @if (showHistoricalDocs()) {
+                <div class="historical-table-wrap">
+                  <table class="docs-table table-muted" aria-label="Superseded Document History">
+                    <thead>
+                      <tr>
+                        <th>Document Type</th>
+                        <th>Original Filename</th>
+                        <th>Upload Date</th>
+                        <th>Status Prior to Replacement</th>
+                        <th>Officer Observation</th>
+                        <th>File</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (hDoc of historicalDocuments(); track hDoc._id) {
+                        <tr>
+                          <td><strong>{{ hDoc.documentType }}</strong></td>
+                          <td><code>{{ hDoc.originalFilename }}</code></td>
+                          <td>{{ hDoc.createdAt | date:'mediumDate' }}</td>
+                          <td>
+                            <span class="badge-superseded">Superseded</span>
+                            <span class="badge-status-pill badge-status-{{ hDoc.verificationStatus | lowercase }}">
+                              {{ hDoc.verificationStatus }}
+                            </span>
+                          </td>
+                          <td>{{ hDoc.verificationRemarks || 'No remarks recorded' }}</td>
+                          <td>
+                            <button
+                              type="button"
+                              class="btn btn-outline-navy btn-xs"
+                              (click)="downloadDocument(hDoc)"
+                              [attr.aria-label]="'Download superseded ' + hDoc.originalFilename"
+                            >
+                              Download
+                            </button>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </div>
+          }
+        </section>
+
+        <!-- Full Application Particulars Summary -->
+        <section class="summary-grid" aria-labelledby="applicant-details-heading">
+          <!-- Personal Summary -->
+          <div class="summary-section">
+            <h3 id="applicant-details-heading" class="summary-sec-title">Personal Particulars</h3>
+            <dl class="meta-list">
+              <div class="meta-row">
+                <dt>Full Name:</dt>
+                <dd>{{ app.personalDetails?.fullName || 'Candidate' }}</dd>
+              </div>
+              <div class="meta-row">
+                <dt>Date of Birth:</dt>
+                <dd>{{ app.personalDetails?.dateOfBirth ? (app.personalDetails.dateOfBirth | date:'longDate') : 'Not provided' }}</dd>
+              </div>
+              <div class="meta-row">
+                <dt>Contact Phone:</dt>
+                <dd>{{ app.personalDetails?.phone || 'Not provided' }}</dd>
+              </div>
+              <div class="meta-row">
+                <dt>Residential Address:</dt>
+                <dd>
+                  @if (app.personalDetails?.address; as addr) {
+                    {{ addr.line1 }}
+                    @if (addr.line2) {, {{ addr.line2 }}}
+                    <br />
+                    {{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}
+                    <br />
+                    {{ addr.country || 'India' }}
+                  } @else {
+                    Address on file
+                  }
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Academic Summary -->
+          <div class="summary-section">
+            <h3 class="summary-sec-title">Academic Qualifications</h3>
+            <dl class="meta-list">
+              <div class="meta-row">
+                <dt>Class 10 (Secondary):</dt>
+                <dd>
+                  <strong>{{ app.academicDetails?.class10?.board || 'Board' }}</strong> ({{ app.academicDetails?.class10?.passingYear || 'N/A' }}) &mdash;
+                  <span class="marks-pill">{{ app.academicDetails?.class10?.marksPercentage || 0 }}%</span>
+                </dd>
+              </div>
+              <div class="meta-row">
+                <dt>Class 12 / Diploma:</dt>
+                <dd>
+                  <strong>{{ app.academicDetails?.class12?.board || 'Board' }}</strong> [{{ app.academicDetails?.class12?.stream || 'General' }}] ({{ app.academicDetails?.class12?.passingYear || 'N/A' }}) &mdash;
+                  <span class="marks-pill">{{ app.academicDetails?.class12?.marksPercentage || 0 }}%</span>
+                </dd>
+              </div>
+              @if (app.academicDetails?.entranceExam?.examName) {
+                <div class="meta-row">
+                  <dt>Entrance Examination:</dt>
+                  <dd>
+                    {{ app.academicDetails?.entranceExam?.examName }}
+                    @if (app.academicDetails?.entranceExam?.scoreOrRank) {
+                      &mdash; {{ app.academicDetails?.entranceExam?.scoreOrRank }}
+                    }
+                    @if (app.academicDetails?.entranceExam?.year) {
+                      ({{ app.academicDetails?.entranceExam?.year }})
+                    }
+                  </dd>
+                </div>
+              }
+            </dl>
+          </div>
+        </section>
+
+      </div>
+    }
+
+    <!-- ================= MODAL: REPLACEMENT / CORRECTION UPLOAD ================= -->
+    @if (showReplaceModal(); as replacing) {
+      <div class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="replace-modal-title">
+        <div class="modal-dialog">
+          <div class="modal-header">
+            <h2 id="replace-modal-title" class="modal-title">Upload Document Correction</h2>
+            <button
+              type="button"
+              class="modal-close-btn"
+              (click)="closeReplaceModal()"
+              [disabled]="isUploadingReplacement()"
+              aria-label="Close correction dialog"
+            >
+              &times;
+            </button>
+          </div>
+
+          <div class="modal-body">
+            @if (replacingDoc(); as doc) {
+              <div class="replace-target-box">
+                <span class="replace-label">Document Being Corrected:</span>
+                <h3 class="replace-doc-title">{{ doc.documentType }}</h3>
+                <p class="replace-filename">Previous file: <code>{{ doc.originalFilename }}</code></p>
+                @if (doc.verificationRemarks) {
+                  <div class="officer-rejection-note">
+                    <strong>Reviewer Remark:</strong> {{ doc.verificationRemarks }}
+                  </div>
+                }
+              </div>
+
+              @if (replacementFileError()) {
+                <div class="alert alert-error" role="alert">
+                  {{ replacementFileError() }}
+                </div>
+              }
+
+              <div class="form-group">
+                <label for="replace-file-input" class="form-label">
+                  Select Corrected File <span class="required" aria-hidden="true">*</span>
+                </label>
+                <div class="custom-file-input-wrap">
+                  <input
+                    #replaceFileInput
+                    id="replace-file-input"
+                    type="file"
+                    class="file-input-native"
+                    accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
+                    (change)="onReplacementFileSelected($event)"
+                    [disabled]="isUploadingReplacement()"
+                  />
+                  <label for="replace-file-input" class="file-picker-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span>Choose Replacement File...</span>
+                  </label>
+                  <span class="file-name-preview" [title]="replacementFile() ? replacementFile()!.name : 'No file chosen'">
+                    {{ replacementFile() ? replacementFile()!.name : 'No file chosen (PDF, JPEG, PNG, WebP up to 10MB)' }}
+                  </span>
+                </div>
+              </div>
+
+              @if (replacementFile(); as repFile) {
+                <div class="selected-file-chip">
+                  <span class="chip-name"><strong>{{ repFile.name }}</strong> ({{ formatFileSize(repFile.size) }})</span>
+                </div>
+              }
+
+              <p class="replacement-help-text">
+                Upon upload, this replacement document will immediately return to <strong>Pending</strong> review status for the Verification Officer. The previous rejected version will be archived.
+              </p>
+            }
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-outline-navy"
+              (click)="closeReplaceModal()"
+              [disabled]="isUploadingReplacement()"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary btn-submit-replacement"
+              (click)="onSubmitReplacement()"
+              [disabled]="!replacementFile() || isUploadingReplacement()"
+            >
+              @if (isUploadingReplacement()) {
+                <span class="spinner-sm" aria-hidden="true"></span>
+                <span>Uploading Replacement...</span>
+              } @else {
+                <span>Upload Replacement &amp; Submit for Review</span>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

@@ -1,0 +1,185 @@
+.footer {
+  background-color: var(--primary-950);
+  color: var(--text-inverse-muted);
+  border-top: 1px solid rgba(197, 155, 39, 0.3);
+  padding-top: 3.5rem;
+  padding-bottom: 2rem;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1.2fr 1.3fr;
+  gap: 2.5rem;
+  margin-bottom: 3rem;
+
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.footer-col {
+  .col-heading {
+    color: var(--text-inverse);
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 32px;
+      height: 2px;
+      background-color: var(--gold-500);
+    }
+  }
+
+  .footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+
+    li {
+      font-size: 0.88rem;
+
+      a {
+        color: var(--text-inverse-muted);
+
+        &:hover {
+          color: var(--gold-400);
+          padding-left: 4px;
+        }
+      }
+
+      span {
+        color: #94a3b8;
+      }
+    }
+  }
+}
+
+.col-brand {
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+
+    .brand-crest {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--gold-400), var(--gold-600));
+      color: var(--primary-950);
+      font-weight: 800;
+      font-size: 1.3rem;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: serif;
+    }
+
+    .brand-title {
+      display: flex;
+      flex-direction: column;
+
+      .main-title {
+        color: var(--text-inverse);
+        font-weight: 700;
+        font-size: 0.95rem;
+        line-height: 1.2;
+      }
+
+      .sub-title {
+        color: var(--gold-400);
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  .brand-desc {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin-bottom: 1.25rem;
+    color: #94a3b8;
+  }
+
+  .accreditations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+
+    .tag {
+      background-color: rgba(255, 255, 255, 0.06);
+      color: var(--gold-300);
+      border: 1px solid rgba(197, 155, 39, 0.25);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-sm);
+    }
+  }
+}
+
+.campus-item {
+  margin-bottom: 0.85rem;
+  font-size: 0.84rem;
+
+  strong {
+    color: var(--text-inverse);
+    display: block;
+    margin-bottom: 0.15rem;
+  }
+
+  p {
+    color: #94a3b8;
+    line-height: 1.4;
+  }
+}
+
+.helpdesk-contact {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  font-size: 0.85rem;
+
+  strong {
+    color: var(--gold-400);
+  }
+}
+
+.sub-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.82rem;
+
+  .project-tag {
+    color: var(--gold-400);
+    background-color: rgba(197, 155, 39, 0.1);
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(197, 155, 39, 0.2);
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

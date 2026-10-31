@@ -1,0 +1,211 @@
+<div class="auth-page staff-login-page">
+  <div class="container auth-container">
+    <div class="auth-card" [class.portal-admin]="portalType === 'admin'" [class.portal-officer]="portalType === 'verification'">
+      <!-- Portal Brand Header -->
+      <div class="auth-header">
+        <div class="header-top-row">
+          <a routerLink="/staff-login" class="back-link" title="Back to Staff Portals">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Staff Portals</span>
+          </a>
+          <span class="portal-badge" [class.badge-admin]="portalType === 'admin'" [class.badge-officer]="portalType === 'verification'">
+            {{ badgeLabel }}
+          </span>
+        </div>
+
+        <div class="crest-wrapper">
+          <div class="auth-crest">
+            <span>U</span>
+          </div>
+        </div>
+        <h1 class="auth-title">{{ portalTitle }}</h1>
+        <p class="auth-desc">{{ portalSubtitle }}</p>
+      </div>
+
+      <!-- Role Mismatch Banner (when logged in with a different role) -->
+      @if (roleMismatch()) {
+        <div class="role-mismatch-card" role="alert">
+          <div class="mismatch-header">
+            <div class="mismatch-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <h2 class="mismatch-title">Portal Access Restricted</h2>
+          </div>
+          <div class="mismatch-body">
+            <p class="mismatch-text">
+              You are authenticated as <strong>{{ mismatchDetails()?.name }}</strong> with the role of
+              <span class="role-tag">{{ formatRoleName(mismatchDetails()?.role) }}</span>.
+            </p>
+            <p class="mismatch-subtext">
+              This portal is strictly reserved for <strong>{{ formatRoleName(expectedRole) }}</strong> accounts.
+              Access to this portal cannot be granted.
+            </p>
+          </div>
+          <div class="mismatch-actions">
+            <button
+              type="button"
+              class="btn btn-gold btn-block btn-proceed-dashboard"
+              (click)="proceedToAssignedDashboard()"
+            >
+              @if (mismatchDetails()?.role === 'admin') {
+                <span>Proceed to Admin Dashboard</span>
+              } @else if (mismatchDetails()?.role === 'verification_officer') {
+                <span>Proceed to Verification Dashboard</span>
+              } @else {
+                <span>Proceed to Applicant Portal</span>
+              }
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+            <div class="mismatch-secondary-actions">
+              <button type="button" class="btn btn-outline-white btn-sm" (click)="onSignOut()">
+                Sign Out / Switch Account
+              </button>
+              <a routerLink="/staff-login" class="btn btn-outline-gold btn-sm">
+                Staff Selection
+              </a>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <!-- Standard Login Form -->
+        <form (submit)="onLoginSubmit($event)" class="auth-form" novalidate>
+          <!-- Feedback Alerts -->
+          @if (errorMessage()) {
+            <div class="alert alert-danger" role="alert">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <span>{{ errorMessage() }}</span>
+            </div>
+          }
+
+          @if (successMessage()) {
+            <div class="alert alert-success" role="status">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              <span>{{ successMessage() }}</span>
+            </div>
+          }
+
+          <!-- Email Input -->
+          <div class="form-group">
+            <label for="staff-email" class="form-label">
+              Staff Email Address <span class="required" aria-hidden="true">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                id="staff-email"
+                type="email"
+                name="email"
+                [(ngModel)]="email"
+                class="form-control"
+                placeholder="officer&#64;uem.edu.in"
+                required
+                autocomplete="email"
+                [disabled]="isLoading()"
+              />
+            </div>
+          </div>
+
+          <!-- Password Input -->
+          <div class="form-group">
+            <div class="label-with-link">
+              <label for="staff-password" class="form-label">
+                Password <span class="required" aria-hidden="true">*</span>
+              </label>
+            </div>
+            <div class="input-wrapper password-wrapper">
+              <input
+                id="staff-password"
+                [type]="showPassword() ? 'text' : 'password'"
+                name="password"
+                [(ngModel)]="password"
+                class="form-control"
+                placeholder="••••••••••••"
+                required
+                autocomplete="current-password"
+                [disabled]="isLoading()"
+              />
+              <button
+                type="button"
+                class="toggle-pass-btn"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+              >
+                @if (showPassword()) {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                }
+              </button>
+            </div>
+          </div>
+
+          <!-- Remember Me Checkbox -->
+          <div class="form-checkbox">
+            <input
+              id="staff-remember"
+              type="checkbox"
+              name="remember"
+              [(ngModel)]="remember"
+              [disabled]="isLoading()"
+            />
+            <label for="staff-remember">Keep me signed in on this workstation</label>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="form-action">
+            <button
+              type="submit"
+              class="btn btn-gold btn-block btn-lg"
+              [disabled]="isLoading()"
+            >
+              @if (isLoading()) {
+                <span class="spinner" aria-hidden="true"></span>
+                <span>Authenticating Staff...</span>
+              } @else {
+                <span>Sign In to {{ badgeLabel }}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              }
+            </button>
+          </div>
+        </form>
+      }
+
+      <!-- Alternative Staff Navigation Footer -->
+      <div class="auth-footer">
+        <p class="switch-portal-link">
+          Need to access a different departmental portal?
+          <a [routerLink]="otherPortalLink" class="alt-link">{{ otherPortalName }}</a>
+        </p>
+        <p class="applicant-note">
+          Student or candidate?
+          <a routerLink="/login" class="applicant-link">Go to Applicant Login</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

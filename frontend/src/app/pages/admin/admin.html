@@ -1,0 +1,963 @@
+<div class="admin-dashboard-page">
+  <!-- Top Executive Bar -->
+  <header class="admin-header">
+    <div class="container admin-header-content">
+      <div class="brand-group">
+        <div class="brand-crest">
+          <span>U</span>
+        </div>
+        <div class="brand-titles">
+          <div class="sys-title">University of Engineering &amp; Management</div>
+          <h1 class="portal-title">Admission Administration &amp; Review Portal</h1>
+        </div>
+      </div>
+
+      <div class="admin-user-bar">
+        <div class="admin-profile">
+          <span class="user-role-badge">Administrator</span>
+          <span class="user-name">{{ authService.currentUser()?.name }}</span>
+          <span class="user-email">{{ authService.currentUser()?.email }}</span>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-outline-gold btn-sm"
+          (click)="onRefresh()"
+          [disabled]="isLoadingApplications() || isLoadingStats()"
+          title="Refresh admission data"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span>Refresh</span>
+        </button>
+
+        <a routerLink="/" class="btn btn-navy-light btn-sm" title="Return to Portal Home">
+          <span>Portal Home</span>
+        </a>
+
+        <button type="button" class="btn btn-outline-danger btn-sm" (click)="onSignOut()" title="Sign Out">
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container admin-main-content">
+    <!-- ================= SECTION 1: DASHBOARD STATISTICS ================= -->
+    <section class="stats-overview-section" aria-labelledby="stats-heading">
+      <div class="section-title-wrap">
+        <h2 id="stats-heading" class="section-heading">Admission Application Metrics</h2>
+        <span class="live-indicator">
+          <span class="pulse-dot"></span>
+          <span>Live Atlas Database Statistics</span>
+        </span>
+      </div>
+
+      <div class="stats-grid">
+        <!-- Total Applications -->
+        <div class="stat-card stat-total">
+          <div class="stat-icon-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Total Applications</span>
+            <span class="stat-number">{{ isLoadingStats() ? '—' : stats().total }}</span>
+          </div>
+        </div>
+
+        <!-- Submitted -->
+        <div class="stat-card stat-submitted">
+          <div class="stat-icon-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 14 14"></polyline>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Submitted</span>
+            <span class="stat-number">{{ isLoadingStats() ? '—' : stats().submitted }}</span>
+          </div>
+        </div>
+
+        <!-- Under Review -->
+        <div class="stat-card stat-review">
+          <div class="stat-icon-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2 12h20"></path>
+              <path d="M20 12v8H4v-8"></path>
+              <path d="m4 4 8 4 8-4"></path>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Under Review</span>
+            <span class="stat-number">{{ isLoadingStats() ? '—' : stats().underReview }}</span>
+          </div>
+        </div>
+
+        <!-- Verified -->
+        <div class="stat-card stat-verified">
+          <div class="stat-icon-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Verified</span>
+            <span class="stat-number">{{ isLoadingStats() ? '—' : stats().verified }}</span>
+          </div>
+        </div>
+
+        <!-- Selected -->
+        <div class="stat-card stat-selected">
+          <div class="stat-icon-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="8" r="7"></circle>
+              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Selected</span>
+            <span class="stat-number">{{ isLoadingStats() ? '—' : stats().selected }}</span>
+          </div>
+        </div>
+
+        <!-- Rejected -->
+        <div class="stat-card stat-rejected">
+          <div class="stat-icon-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Rejected</span>
+            <span class="stat-number">{{ isLoadingStats() ? '—' : stats().rejected }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Department / Programme Breakdown Section -->
+      <div class="programme-breakdown-card" aria-labelledby="programme-breakdown-heading">
+        <div class="breakdown-header">
+          <div class="breakdown-title-group">
+            <div class="breakdown-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 id="programme-breakdown-heading" class="breakdown-title">Department / Programme Breakdown</h3>
+              <p class="breakdown-subtitle">Live distribution of applicant enrollments grouped by academic programme (MongoDB Aggregation)</p>
+            </div>
+          </div>
+          @if (!isLoadingStats()) {
+            <span class="programme-count-badge">
+              {{ programmeStats().length }} {{ programmeStats().length === 1 ? 'Programme' : 'Programmes' }} Active
+            </span>
+          }
+        </div>
+
+        <!-- Loading State -->
+        @if (isLoadingStats()) {
+          <div class="breakdown-loading">
+            <span class="spinner-sm"></span>
+            <span>Aggregating programme statistics...</span>
+          </div>
+        }
+
+        <!-- Loaded State: Grid -->
+        @if (!isLoadingStats() && programmeStats().length > 0) {
+          <div class="programme-grid">
+            @for (item of programmeStats(); track item.programme) {
+              <button
+                type="button"
+                class="programme-stat-item"
+                [class.active]="selectedProgramme === item.programme"
+                (click)="filterByProgramme(item.programme)"
+                [title]="selectedProgramme === item.programme ? 'Click to show all programmes' : 'Filter applications by ' + item.programme"
+              >
+                <div class="programme-meta">
+                  <span class="programme-name">{{ item.programme }}</span>
+                  @if (stats().total > 0) {
+                    <span class="programme-percentage">
+                      {{ ((item.count / stats().total) * 100) | number:'1.0-1' }}% of total
+                    </span>
+                  }
+                </div>
+                <div class="programme-count-box">
+                  <span class="count-value">{{ item.count }}</span>
+                  <span class="count-label">{{ item.count === 1 ? 'application' : 'applications' }}</span>
+                </div>
+              </button>
+            }
+          </div>
+        }
+
+        <!-- Empty State -->
+        @if (!isLoadingStats() && programmeStats().length === 0) {
+          <div class="breakdown-empty">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>No programme application data recorded yet.</span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ================= SECTION 2: APPLICATION LIST & MANAGEMENT ================= -->
+    <section class="applications-section" aria-labelledby="applications-heading">
+      <div class="table-card">
+        <!-- Controls Bar: Search, Status Filter, Programme Filter -->
+        <div class="table-controls-header">
+          <div class="controls-left">
+            <h2 id="applications-heading" class="table-title">Admission Applications Directory</h2>
+            <span class="table-subtitle">Search, inspect, and evaluate submitted applicant records</span>
+          </div>
+
+          <!-- Quick Filters Form -->
+          <form class="filters-form" (submit)="onSearchSubmit($event)">
+            <!-- Search Bar -->
+            <div class="search-input-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input
+                type="text"
+                class="form-control search-input"
+                id="admin-search-input"
+                name="search"
+                placeholder="Search name, email, or application ID..."
+                [(ngModel)]="searchTerm"
+                [disabled]="isLoadingApplications()"
+              />
+              @if (searchTerm) {
+                <button type="button" class="btn-clear-search" (click)="onClearSearch()" title="Clear search">
+                  &times;
+                </button>
+              }
+            </div>
+
+            <!-- Status Dropdown -->
+            <div class="select-wrap">
+              <label for="admin-status-filter" class="filter-label">Status:</label>
+              <select
+                id="admin-status-filter"
+                class="form-control select-filter"
+                name="status"
+                [(ngModel)]="selectedStatus"
+                (change)="onStatusChange()"
+                [disabled]="isLoadingApplications()"
+              >
+                @for (st of statusOptions; track st) {
+                  <option [value]="st">{{ st }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Programme Dropdown -->
+            <div class="select-wrap programme-select-wrap">
+              <label for="admin-programme-filter" class="filter-label">Programme:</label>
+              <select
+                id="admin-programme-filter"
+                class="form-control select-filter"
+                name="programme"
+                [(ngModel)]="selectedProgramme"
+                (change)="onProgrammeChange()"
+                [disabled]="isLoadingApplications()"
+              >
+                @for (prg of programmeOptions; track prg) {
+                  <option [value]="prg">{{ prg }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="filter-actions">
+              <button type="submit" class="btn btn-navy btn-sm" [disabled]="isLoadingApplications()">
+                <span>Search</span>
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-navy btn-sm"
+                (click)="resetFilters()"
+                [disabled]="isLoadingApplications()"
+                title="Reset all filters"
+              >
+                <span>Reset</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Error Alert -->
+        @if (applicationsError()) {
+          <div class="table-alert-error" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>{{ applicationsError() }}</span>
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="loadApplications()">Retry</button>
+          </div>
+        }
+
+        <!-- Applications Table -->
+        <div class="table-responsive">
+          <table class="admin-table" aria-label="Admission Applications Table">
+            <thead>
+              <tr>
+                <th scope="col" class="th-id">Application ID</th>
+                <th scope="col" class="th-candidate">Applicant Details</th>
+                <th scope="col" class="th-programme">Selected Programme</th>
+                <th scope="col" class="th-date">Submission Date</th>
+                <th scope="col" class="th-status">Status</th>
+                <th scope="col" class="th-actions">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <!-- Loading Skeleton -->
+              @if (isLoadingApplications()) {
+                @for (n of [1, 2, 3, 4, 5]; track n) {
+                  <tr class="skeleton-row">
+                    <td><div class="skeleton-pill"></div></td>
+                    <td><div class="skeleton-line"></div><div class="skeleton-line-sm"></div></td>
+                    <td><div class="skeleton-line"></div></td>
+                    <td><div class="skeleton-line-sm"></div></td>
+                    <td><div class="skeleton-badge"></div></td>
+                    <td><div class="skeleton-btn"></div></td>
+                  </tr>
+                }
+              }
+
+              <!-- Empty State -->
+              @else if (applications().length === 0) {
+                <tr>
+                  <td colspan="6" class="empty-cell">
+                    <div class="empty-state-wrap">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="empty-icon" aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      </svg>
+                      <h3 class="empty-title">No admission applications found</h3>
+                      <p class="empty-desc">
+                        No applications matched your current search and filter criteria. Try adjusting the search keywords or filters.
+                      </p>
+                      <button type="button" class="btn btn-gold btn-sm" (click)="resetFilters()">Clear Filters</button>
+                    </div>
+                  </td>
+                </tr>
+              }
+
+              <!-- Real Data Rows -->
+              @else {
+                @for (app of applications(); track app._id) {
+                  <tr class="data-row">
+                    <!-- Application ID -->
+                    <td class="td-id">
+                      <span class="id-badge">{{ app.applicationId }}</span>
+                    </td>
+
+                    <!-- Candidate Details -->
+                    <td class="td-candidate">
+                      <div class="candidate-wrap">
+                        <span class="candidate-name">{{ app.personalDetails?.fullName || app.applicant?.name || 'N/A' }}</span>
+                        <span class="candidate-email">{{ app.applicant?.email || 'N/A' }}</span>
+                        @if (app.personalDetails?.phone) {
+                          <span class="candidate-phone">{{ app.personalDetails.phone }}</span>
+                        }
+                      </div>
+                    </td>
+
+                    <!-- Programme -->
+                    <td class="td-programme">
+                      <span class="programme-name">{{ app.selectedProgramme }}</span>
+                    </td>
+
+                    <!-- Submission Date -->
+                    <td class="td-date">
+                      <span class="date-main">{{ app.createdAt | date:'mediumDate' }}</span>
+                      <span class="date-time">{{ app.createdAt | date:'shortTime' }}</span>
+                    </td>
+
+                    <!-- Status -->
+                    <td class="td-status">
+                      <span class="status-badge status-{{ app.status | lowercase | slice:0:3 }}">
+                        {{ app.status }}
+                      </span>
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="td-actions">
+                      <button
+                        type="button"
+                        class="btn btn-outline-navy btn-sm btn-view-details"
+                        (click)="openApplicationDetails(app._id)"
+                        title="View complete application record"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <span>View Details</span>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Footer: Pagination & Page Size -->
+        <div class="table-pagination-footer">
+          <div class="pagination-info">
+            @if (pagination().total > 0) {
+              <span>
+                Showing <strong>{{ (pagination().page - 1) * pagination().limit + 1 }}</strong> to
+                <strong>{{ (pagination().page * pagination().limit) > pagination().total ? pagination().total : (pagination().page * pagination().limit) }}</strong> of
+                <strong>{{ pagination().total }}</strong> applications
+              </span>
+            } @else {
+              <span>0 applications on record</span>
+            }
+          </div>
+
+          <div class="pagination-controls">
+            <!-- Items Per Page Dropdown -->
+            <div class="page-size-wrap">
+              <label for="admin-page-size" class="size-label">Per page:</label>
+              <select
+                id="admin-page-size"
+                class="form-control size-select"
+                [(ngModel)]="itemsPerPage"
+                (change)="onPageSizeChange()"
+                [disabled]="isLoadingApplications()"
+              >
+                @for (size of pageSizeOptions; track size) {
+                  <option [value]="size">{{ size }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Page Buttons -->
+            <div class="page-nav-btns" role="navigation" aria-label="Pagination">
+              <button
+                type="button"
+                class="btn-nav"
+                (click)="goToPage(1)"
+                [disabled]="pagination().page <= 1 || isLoadingApplications()"
+                title="First Page"
+              >
+                &laquo;
+              </button>
+              <button
+                type="button"
+                class="btn-nav"
+                (click)="goToPage(pagination().page - 1)"
+                [disabled]="!pagination().hasPrevPage || isLoadingApplications()"
+                title="Previous Page"
+              >
+                &lsaquo;
+              </button>
+
+              <span class="page-current-indicator">
+                Page <strong>{{ pagination().page }}</strong> of <strong>{{ pagination().totalPages }}</strong>
+              </span>
+
+              <button
+                type="button"
+                class="btn-nav"
+                (click)="goToPage(pagination().page + 1)"
+                [disabled]="!pagination().hasNextPage || isLoadingApplications()"
+                title="Next Page"
+              >
+                &rsaquo;
+              </button>
+              <button
+                type="button"
+                class="btn-nav"
+                (click)="goToPage(pagination().totalPages)"
+                [disabled]="pagination().page >= pagination().totalPages || isLoadingApplications()"
+                title="Last Page"
+              >
+                &raquo;
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= APPLICATION DETAIL MODAL ================= -->
+  @if (isModalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()" role="presentation">
+      <div
+        class="modal-dialog"
+        (click)="$event.stopPropagation()"
+        role="dialog"
+        aria-labelledby="modal-candidate-name"
+        aria-modal="true"
+      >
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-eyebrow">Executive Application Dossier</span>
+            <h3 id="modal-candidate-name" class="modal-title">
+              {{ selectedApplication()?.personalDetails?.fullName || selectedApplication()?.applicant?.name || 'Application Details' }}
+            </h3>
+            @if (selectedApplication(); as app) {
+              <div class="modal-meta-row">
+                <span class="id-badge">{{ app.applicationId }}</span>
+                <span class="status-badge status-{{ app.status | lowercase | slice:0:3 }}">{{ app.status }}</span>
+                <span class="submitted-chip">Applied on {{ app.createdAt | date:'mediumDate' }}</span>
+              </div>
+            }
+          </div>
+          <button type="button" class="btn-close-modal" (click)="closeModal()" aria-label="Close dialog">
+            &times;
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+          @if (isLoadingDetails()) {
+            <div class="modal-loading-state" role="status">
+              <div class="spinner-large" aria-hidden="true"></div>
+              <p>Retrieving full applicant dossier and document verification records...</p>
+            </div>
+          }
+
+          @else if (detailsError()) {
+            <div class="alert alert-error" role="alert">
+              <span>{{ detailsError() }}</span>
+            </div>
+          }
+
+          @else if (selectedApplication(); as app) {
+            <!-- Action Feedback Alerts -->
+            @if (actionSuccess()) {
+              <div class="alert alert-success" role="alert">
+                <span>{{ actionSuccess() }}</span>
+              </div>
+            }
+            @if (actionError()) {
+              <div class="alert alert-error" role="alert">
+                <span>{{ actionError() }}</span>
+              </div>
+            }
+
+            <!-- Programme & Personal Section -->
+            <div class="dossier-section">
+              <h4 class="dossier-sec-title">Personal Particulars &amp; Programme Choice</h4>
+              <div class="dossier-grid">
+                <div class="dossier-item">
+                  <span class="dossier-label">Selected Programme:</span>
+                  <span class="dossier-value highlight">{{ app.selectedProgramme }}</span>
+                </div>
+                <div class="dossier-item">
+                  <span class="dossier-label">Registered Email:</span>
+                  <span class="dossier-value">{{ app.applicant?.email || 'N/A' }}</span>
+                </div>
+                <div class="dossier-item">
+                  <span class="dossier-label">Contact Phone:</span>
+                  <span class="dossier-value">{{ app.personalDetails?.phone || 'N/A' }}</span>
+                </div>
+                <div class="dossier-item">
+                  <span class="dossier-label">Date of Birth:</span>
+                  <span class="dossier-value">{{ app.personalDetails?.dateOfBirth | date:'longDate' }}</span>
+                </div>
+                <div class="dossier-item span-2">
+                  <span class="dossier-label">Residential Address:</span>
+                  <span class="dossier-value">
+                    {{ app.personalDetails?.address?.line1 }}
+                    {{ app.personalDetails?.address?.line2 ? ', ' + app.personalDetails?.address?.line2 : '' }},
+                    {{ app.personalDetails?.address?.city }}, {{ app.personalDetails?.address?.state }} - {{ app.personalDetails?.address?.pincode }}, {{ app.personalDetails?.address?.country }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Academic Records Section -->
+            <div class="dossier-section">
+              <h4 class="dossier-sec-title">Academic Qualifications</h4>
+              <div class="academic-cards-grid">
+                <!-- Class 10 -->
+                <div class="academic-card">
+                  <div class="card-head">Class 10 (Secondary)</div>
+                  <div class="card-body">
+                    <div class="academic-row">
+                      <span>Board:</span>
+                      <strong>{{ app.academicDetails?.class10?.board }}</strong>
+                    </div>
+                    <div class="academic-row">
+                      <span>Passing Year:</span>
+                      <strong>{{ app.academicDetails?.class10?.passingYear }}</strong>
+                    </div>
+                    <div class="academic-row">
+                      <span>Marks Percentage:</span>
+                      <strong class="text-gold">{{ app.academicDetails?.class10?.marksPercentage }}%</strong>
+                    </div>
+                    @if (app.academicDetails?.class10?.rollNumber) {
+                      <div class="academic-row">
+                        <span>Roll / Reg No:</span>
+                        <span>{{ app.academicDetails.class10.rollNumber }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <!-- Class 12 -->
+                <div class="academic-card">
+                  <div class="card-head">Class 12 (Higher Secondary)</div>
+                  <div class="card-body">
+                    <div class="academic-row">
+                      <span>Board:</span>
+                      <strong>{{ app.academicDetails?.class12?.board }}</strong>
+                    </div>
+                    <div class="academic-row">
+                      <span>Passing Year:</span>
+                      <strong>{{ app.academicDetails?.class12?.passingYear }}</strong>
+                    </div>
+                    <div class="academic-row">
+                      <span>Stream:</span>
+                      <strong>{{ app.academicDetails?.class12?.stream }}</strong>
+                    </div>
+                    <div class="academic-row">
+                      <span>Marks Percentage:</span>
+                      <strong class="text-gold">{{ app.academicDetails?.class12?.marksPercentage }}%</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Entrance Exam -->
+                <div class="academic-card">
+                  <div class="card-head">Competitive Entrance Exam</div>
+                  <div class="card-body">
+                    @if (app.academicDetails?.entranceExam?.examName) {
+                      <div class="academic-row">
+                        <span>Exam:</span>
+                        <strong>{{ app.academicDetails.entranceExam.examName }}</strong>
+                      </div>
+                      <div class="academic-row">
+                        <span>Score / Rank:</span>
+                        <strong class="text-gold">{{ app.academicDetails.entranceExam.scoreOrRank }}</strong>
+                      </div>
+                      <div class="academic-row">
+                        <span>Exam Year:</span>
+                        <span>{{ app.academicDetails.entranceExam.year }}</span>
+                      </div>
+                    } @else {
+                      <div class="not-declared">No competitive entrance examination declared.</div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Uploaded Documents Metadata Section -->
+            <div class="dossier-section">
+              <h4 class="dossier-sec-title">
+                Uploaded Admission Documents ({{ getActiveDocuments(app.documents).length }})
+              </h4>
+
+              @if (!app.documents || getActiveDocuments(app.documents).length === 0) {
+                <div class="no-docs-alert">
+                  <span>No admission documents have been uploaded for this candidate application.</span>
+                </div>
+              } @else {
+                <div class="table-responsive">
+                  <table class="documents-table">
+                    <thead>
+                      <tr>
+                        <th>Document Type</th>
+                        <th>Original Filename</th>
+                        <th>File Size</th>
+                        <th>Status</th>
+                        <th>Uploaded On</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (doc of getActiveDocuments(app.documents); track doc._id) {
+                        <tr>
+                          <td><strong>{{ doc.documentType }}</strong></td>
+                          <td class="cell-filename">{{ doc.originalFilename }}</td>
+                          <td>{{ formatFileSize(doc.fileSize) }}</td>
+                          <td>
+                            <span class="status-badge status-{{ doc.verificationStatus | lowercase | slice:0:3 }}">
+                              {{ doc.verificationStatus }}
+                            </span>
+                          </td>
+                          <td>{{ doc.createdAt | date:'mediumDate' }}</td>
+                          <td>
+                            <button
+                              type="button"
+                              class="btn btn-outline-navy btn-xs"
+                              (click)="openDocument(doc.fileUrl)"
+                              title="Securely preview/download document"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                              </svg>
+                              <span>Preview</span>
+                            </button>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Archived / Superseded Historical Documents Section (Requirement 1) -->
+                @if (getHistoricalDocuments(app.documents); as histDocs) {
+                  @if (histDocs.length > 0) {
+                    <div class="historical-dossier-wrap">
+                      <div class="historical-summary-bar">
+                        <span class="historical-summary-text">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 14 14"></polyline>
+                          </svg>
+                          {{ histDocs.length }} superseded document version(s) archived in replacement history.
+                        </span>
+                        <button
+                          type="button"
+                          class="btn btn-outline-navy btn-xs btn-toggle-history"
+                          (click)="toggleHistoricalDocs()"
+                        >
+                          {{ showHistoricalDocs() ? 'Hide Archived History' : 'View Archived History' }}
+                        </button>
+                      </div>
+
+                      @if (showHistoricalDocs()) {
+                        <div class="table-responsive mt-2">
+                          <table class="documents-table historical-table">
+                            <thead>
+                              <tr>
+                                <th>Document Type</th>
+                                <th>Original Filename</th>
+                                <th>File Size</th>
+                                <th>Status</th>
+                                <th>Uploaded On</th>
+                                <th>Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (hDoc of histDocs; track hDoc._id) {
+                                <tr class="row-superseded">
+                                  <td>
+                                    <strong>{{ hDoc.documentType }}</strong>
+                                    <span class="superseded-badge">(Replaced)</span>
+                                  </td>
+                                  <td class="cell-filename">{{ hDoc.originalFilename }}</td>
+                                  <td>{{ formatFileSize(hDoc.fileSize) }}</td>
+                                  <td>
+                                    <span class="status-badge status-{{ hDoc.verificationStatus | lowercase | slice:0:3 }}">
+                                      {{ hDoc.verificationStatus }}
+                                    </span>
+                                  </td>
+                                  <td>{{ hDoc.createdAt | date:'mediumDate' }}</td>
+                                  <td class="cell-doc-actions">
+                                    <button
+                                      type="button"
+                                      class="btn btn-outline-navy btn-xs"
+                                      (click)="openDocument(hDoc.fileUrl)"
+                                      title="Preview archived document"
+                                    >
+                                      <span>Preview</span>
+                                    </button>
+                                  </td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </div>
+                      }
+                    </div>
+                  }
+                }
+              }
+            </div>
+
+            <!-- Remarks & Review Notes (if present) -->
+            @if (app.verificationRemarks || app.decisionRemarks) {
+              <div class="dossier-section">
+                <h4 class="dossier-sec-title">Verification &amp; Decision Remarks</h4>
+                @if (app.verificationRemarks) {
+                  <div class="remarks-box">
+                    <strong>Verification Remarks:</strong> {{ app.verificationRemarks }}
+                  </div>
+                }
+                @if (app.decisionRemarks) {
+                  <div class="remarks-box decision-box">
+                    <strong>Decision Remarks:</strong> {{ app.decisionRemarks }}
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Final Admission Selection Decision Section -->
+            <div class="dossier-section workflow-decision-section">
+              <h4 class="dossier-sec-title">Final Admission Selection Decision</h4>
+
+              <!-- Status guide card -->
+              <div class="workflow-condition-card" [class.ready]="app.status === 'Verified'">
+                @if (app.status === 'Selected') {
+                  <div class="cond-icon text-emerald">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                  </div>
+                  <div class="cond-text">
+                    <strong>Admission Offer Extended:</strong>
+                    This candidate has been officially <strong>Selected</strong> for admission to {{ app.selectedProgramme }}.
+                  </div>
+                } @else if (app.status === 'Rejected') {
+                  <div class="cond-icon text-danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="15" y1="9" x2="9" y2="15"></line>
+                      <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                  </div>
+                  <div class="cond-text">
+                    <strong>Application Rejected:</strong>
+                    This application was rejected during review/selection.
+                  </div>
+                } @else if (app.status === 'Verified') {
+                  <div class="cond-icon text-emerald">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="16 12 12 8 8 12"></polyline>
+                      <line x1="12" y1="16" x2="12" y2="8"></line>
+                    </svg>
+                  </div>
+                  <div class="cond-text">
+                    <strong>Candidate Verified:</strong>
+                    All credentials and documents have been verified. Administrator final selection decision can now be issued.
+                  </div>
+                } @else {
+                  <div class="cond-icon text-amber">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                  </div>
+                  <div class="cond-text">
+                    <strong>Pending Verification:</strong>
+                    Candidate application status is <em>{{ app.status }}</em>. Final selection requires the application to reach <em>Verified</em> status first.
+                  </div>
+                }
+              </div>
+
+              <!-- Rejection Prompt Box -->
+              @if (isRejectingDecision()) {
+                <div class="rejection-box" role="dialog" aria-labelledby="admin-rej-title">
+                  <h5 id="admin-rej-title" class="rejection-title">
+                    Reject Admission Application
+                  </h5>
+                  <p class="rejection-hint">
+                    Please provide an official decision remark (minimum 3 characters) recorded with your administrator identity.
+                  </p>
+                  @if (decisionRemarksError) {
+                    <div class="alert alert-danger sm-alert">
+                      {{ decisionRemarksError }}
+                    </div>
+                  }
+                  <textarea
+                    class="form-control"
+                    rows="3"
+                    placeholder="Enter reason for admission rejection..."
+                    [(ngModel)]="decisionRemarks"
+                  ></textarea>
+                  <div class="rejection-actions">
+                    <button
+                      type="button"
+                      class="btn btn-outline-navy btn-sm"
+                      (click)="cancelRejectPrompt()"
+                      [disabled]="actionLoading()"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-danger btn-sm"
+                      (click)="confirmRejectCandidate()"
+                      [disabled]="actionLoading()"
+                    >
+                      {{ actionLoading() ? 'Processing...' : 'Confirm Rejection' }}
+                    </button>
+                  </div>
+                </div>
+              }
+
+              <!-- Action Buttons -->
+              @if (!isRejectingDecision() && app.status !== 'Selected' && app.status !== 'Rejected') {
+                <div class="decision-btn-group">
+                  <button
+                    type="button"
+                    class="btn btn-emerald"
+                    [disabled]="actionLoading() || app.status !== 'Verified'"
+                    (click)="selectCandidate()"
+                    title="Officially select verified candidate for admission"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span>{{ actionLoading() ? 'Processing...' : 'Select Candidate for Admission' }}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger"
+                    [disabled]="actionLoading()"
+                    (click)="openRejectPrompt()"
+                    title="Reject admission application with administrative remarks"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="15" y1="9" x2="9" y2="15"></line>
+                      <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                    <span>Reject Application</span>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-navy" (click)="closeModal()">
+            Close Dossier
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

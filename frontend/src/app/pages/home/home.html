@@ -1,0 +1,352 @@
+<div class="home-page">
+  <!-- Hero Section -->
+  <section class="hero-section" aria-labelledby="hero-title">
+    <div class="hero-backdrop"></div>
+    <div class="container hero-container">
+      <div class="hero-content">
+        <div class="session-pill">
+          <span class="pulse-dot"></span>
+          <span>Admissions Open for Academic Session 2026–27</span>
+        </div>
+        <h1 id="hero-title" class="hero-title">
+          Empowering Tomorrow's <span class="highlight-gold">Engineers</span> &amp; <span class="highlight-gold">Leaders</span>
+        </h1>
+        <p class="hero-subtitle">
+          Welcome to the official online admission portal of the University of Engineering &amp; Management. Explore industry-aligned undergraduate and postgraduate degree programmes equipped with modern research laboratories and exceptional placement records.
+        </p>
+
+        <div class="hero-actions">
+          @if (authService.isAuthenticated()) {
+            @if (authService.currentUser()?.role === 'admin') {
+              <a routerLink="/admin" class="btn btn-gold btn-lg">
+                <span>Admin Dashboard</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
+            } @else if (authService.currentUser()?.role === 'verification_officer') {
+              <a routerLink="/verification" class="btn btn-gold btn-lg">
+                <span>Verification Dashboard</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
+            } @else {
+              <!-- Authenticated applicant: Staff login hidden -->
+              <a routerLink="/application" class="btn btn-primary btn-lg">
+                <span>Continue Admission Application</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
+            }
+          } @else {
+            <a routerLink="/application" class="btn btn-primary btn-lg">
+              <span>Start Online Application</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+            <a routerLink="/login" class="btn btn-outline-gold btn-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                <polyline points="10 17 15 12 10 7"></polyline>
+                <line x1="15" y1="12" x2="3" y2="12"></line>
+              </svg>
+              <span>Applicant Login</span>
+            </a>
+            <a routerLink="/staff-login" class="btn btn-outline-white btn-lg btn-staff-access">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <span>Staff Login</span>
+            </a>
+          }
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Placement Assistance</span>
+          </div>
+          <div class="stat-divider" aria-hidden="true"></div>
+          <div class="stat-item">
+            <span class="stat-number">NAAC</span>
+            <span class="stat-label">Accredited Quality</span>
+          </div>
+          <div class="stat-divider" aria-hidden="true"></div>
+          <div class="stat-item">
+            <span class="stat-number">50+</span>
+            <span class="stat-label">Advanced Tech Labs</span>
+          </div>
+          <div class="stat-divider" aria-hidden="true"></div>
+          <div class="stat-item">
+            <span class="stat-number">Tier-1</span>
+            <span class="stat-label">Global Recruiters</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Admission Overview / Why UEM -->
+  <section id="about" class="section section-about" aria-labelledby="about-title">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge">Academic Excellence</span>
+        <h2 id="about-title" class="section-title">Why Choose University of Engineering &amp; Management</h2>
+        <p class="section-subtitle">
+          UEM provides world-class education rooted in practical engineering, cutting-edge software development, and modern business management.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">Industry-Aligned Curriculum</h3>
+          <p class="feature-desc">
+            Curricula regularly updated in partnership with technology leaders, focusing on Artificial Intelligence, Cloud Systems, IoT, and Data Analytics.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+          <h3 class="feature-title">State-of-the-Art Laboratories</h3>
+          <p class="feature-desc">
+            Hands-on learning through dedicated hardware, high-performance computing clusters, robotics stations, and electronic system design suites.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">Career Mentorship &amp; Placement</h3>
+          <p class="feature-desc">
+            Structured career preparation from year one with mock interviews, coding bootcamps, and top national and international recruitment drives.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Programmes Offered Section -->
+  <section id="programmes" class="section section-programmes" aria-labelledby="programmes-title">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge">Degree Options</span>
+        <h2 id="programmes-title" class="section-title">Programmes Offered for Admission</h2>
+        <p class="section-subtitle">
+          Select from our distinguished undergraduate and postgraduate programmes designed to match global career pathways.
+        </p>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="tab-filter-container">
+        <div class="tab-filters" role="tablist" aria-label="Programme Categories">
+          <button
+            type="button"
+            role="tab"
+            class="tab-btn"
+            [class.active]="selectedCategory() === 'all'"
+            [attr.aria-selected]="selectedCategory() === 'all'"
+            (click)="setCategory('all')"
+          >
+            All Programmes
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="tab-btn"
+            [class.active]="selectedCategory() === 'ug'"
+            [attr.aria-selected]="selectedCategory() === 'ug'"
+            (click)="setCategory('ug')"
+          >
+            Undergraduate (B.Tech / BCA / BBA)
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="tab-btn"
+            [class.active]="selectedCategory() === 'pg'"
+            [attr.aria-selected]="selectedCategory() === 'pg'"
+            (click)="setCategory('pg')"
+          >
+            Postgraduate (MCA / MBA)
+          </button>
+        </div>
+      </div>
+
+      <!-- Programmes Grid -->
+      <div class="programmes-grid">
+        @for (prog of filteredProgrammes(); track prog.id) {
+          <article class="programme-card" [class.featured]="prog.featured">
+            @if (prog.featured) {
+              <div class="card-ribbon">Popular Choice</div>
+            }
+            <div class="card-header">
+              <div class="card-meta">
+                <span class="degree-badge">{{ prog.degree }}</span>
+                <span class="duration-badge">{{ prog.duration }}</span>
+              </div>
+              <h3 class="programme-name">{{ prog.name }}</h3>
+              <p class="department-name">{{ prog.department }}</p>
+            </div>
+
+            <div class="card-body">
+              <p class="programme-desc">{{ prog.description }}</p>
+
+              <div class="specialisations-section">
+                <span class="spec-label">Specialisations &amp; Electives:</span>
+                <div class="spec-tags">
+                  @for (spec of prog.specialisations; track spec) {
+                    <span class="spec-pill">{{ spec }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <a
+                [routerLink]="['/application']"
+                [queryParams]="{ programme: prog.canonicalProgramme }"
+                [state]="{ selectedProgramme: prog.canonicalProgramme }"
+                class="btn btn-navy btn-block"
+                [attr.aria-label]="'Apply for ' + prog.name"
+              >
+                <span>Apply for this Program</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Admission Steps / Workflow Section -->
+  <section id="process" class="section section-process" aria-labelledby="process-title">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge">How It Works</span>
+        <h2 id="process-title" class="section-title">5-Step Online Admission Procedure</h2>
+        <p class="section-subtitle">
+          Follow our clear, transparent digital admission workflow to secure your seat.
+        </p>
+      </div>
+
+      <div class="steps-container">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <div class="step-content">
+            <h3 class="step-title">Online Registration</h3>
+            <p class="step-desc">
+              Create an applicant account with your valid email and phone number to access the candidate dashboard.
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <div class="step-content">
+            <h3 class="step-title">Fill Application Details</h3>
+            <p class="step-desc">
+              Provide personal information, communication address, and Class 10 &amp; Class 12 academic score records.
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <div class="step-content">
+            <h3 class="step-title">Upload Documents</h3>
+            <p class="step-desc">
+              Submit digital copies of your academic marksheets, government identity proof, and candidate photograph.
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">04</div>
+          <div class="step-content">
+            <h3 class="step-title">Verification &amp; Review</h3>
+            <p class="step-desc">
+              The admission scrutiny committee examines uploaded credentials and calculates qualification merit.
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">05</div>
+          <div class="step-content">
+            <h3 class="step-title">Admission Offer &amp; Enrollment</h3>
+            <p class="step-desc">
+              Eligible candidates receive provisional admission confirmation and enrollment guidance directly in the portal.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Candidate Guidance & CTA Banner -->
+  <section class="section-cta" aria-labelledby="cta-title">
+    <div class="container">
+      <div class="cta-box">
+        <div class="cta-text">
+          <span class="badge badge-gold">Admissions Open 2026</span>
+          <h2 id="cta-title" class="cta-heading">Ready to Start Your Academic Journey at UEM?</h2>
+          <p class="cta-desc">
+            Submit your online application in minutes. Candidate accounts allow tracking your application status in real-time.
+          </p>
+        </div>
+        <div class="cta-buttons">
+          @if (authService.isAuthenticated()) {
+            @if (authService.currentUser()?.role === 'admin') {
+              <a routerLink="/admin" class="btn btn-gold btn-lg">Admin Dashboard</a>
+            } @else if (authService.currentUser()?.role === 'verification_officer') {
+              <a routerLink="/verification" class="btn btn-gold btn-lg">Verification Dashboard</a>
+            } @else {
+              <!-- Authenticated applicant: Staff login hidden -->
+              <a routerLink="/application" class="btn btn-primary btn-lg">My Application Status</a>
+            }
+          } @else {
+            <a routerLink="/register" class="btn btn-primary btn-lg">
+              <span>Register as New Applicant</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+            <a routerLink="/login" class="btn btn-outline-gold btn-lg">Applicant Sign In</a>
+            <a routerLink="/staff-login" class="btn btn-outline-white btn-lg">Staff Login</a>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

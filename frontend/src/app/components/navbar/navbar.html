@@ -1,0 +1,178 @@
+<header class="header">
+  <div class="top-banner">
+    <div class="container top-banner-content">
+      <div class="top-left">
+        <span class="badge-mini">Academic Session 2026–27</span>
+        <span class="banner-text">Admissions are currently underway for Engineering &amp; Management</span>
+      </div>
+      <div class="top-right">
+        <span class="help-text">Admission Helpline: <strong>admissions&#64;uem.edu.in</strong></span>
+        @if (!authService.isAuthenticated()) {
+          <span class="top-divider" aria-hidden="true">|</span>
+          <a routerLink="/staff-login" class="top-staff-link">Staff Login</a>
+        }
+      </div>
+    </div>
+  </div>
+
+  <nav class="navbar" aria-label="Main Navigation">
+    <div class="container nav-container">
+      <!-- Brand Logo & University Title -->
+      <a routerLink="/" (click)="closeMenu()" class="brand" aria-label="UEM Admission Portal Home">
+        <div class="brand-crest">
+          <span class="crest-letter">U</span>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">University of Engineering &amp; Management</span>
+          <span class="brand-sub">Online Admission System</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <div class="desktop-links">
+        <ul class="nav-list" role="menubar">
+          <li role="none">
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" role="menuitem" class="nav-link">Home</a>
+          </li>
+          <li role="none">
+            <a routerLink="/" fragment="programmes" (click)="closeMenu()" role="menuitem" class="nav-link">Programmes</a>
+          </li>
+          <li role="none">
+            <a routerLink="/" fragment="process" (click)="closeMenu()" role="menuitem" class="nav-link">Admission Steps</a>
+          </li>
+          <li role="none">
+            <a routerLink="/" fragment="about" (click)="closeMenu()" role="menuitem" class="nav-link">About UEM</a>
+          </li>
+        </ul>
+
+        <div class="nav-actions">
+          @if (authService.isAuthenticated()) {
+            @if (authService.currentUser()?.role === 'admin') {
+              <a routerLink="/admin" routerLinkActive="active" class="btn btn-gold btn-sm">
+                <span>Admin Dashboard</span>
+              </a>
+            } @else if (authService.currentUser()?.role === 'verification_officer') {
+              <a routerLink="/verification" routerLinkActive="active" class="btn btn-gold btn-sm">
+                <span>Verification Dashboard</span>
+              </a>
+            } @else {
+              <a routerLink="/application" routerLinkActive="active" class="btn btn-outline-gold btn-sm">
+                <span>Application Form</span>
+              </a>
+              <a routerLink="/status" routerLinkActive="active" class="btn btn-gold btn-sm">
+                <span>Application Status</span>
+              </a>
+            }
+            <div class="user-badge" [attr.aria-label]="'Logged in as ' + authService.currentUser()?.name">
+              <span class="user-name">{{ authService.currentUser()?.name }}</span>
+              <span class="user-role">{{ authService.currentUser()?.role === 'admin' ? 'Administrator' : authService.currentUser()?.role === 'verification_officer' ? 'Verification Officer' : 'Applicant' }}</span>
+            </div>
+            <button type="button" class="btn btn-outline-gold btn-sm" (click)="onLogout()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              <span>Sign Out</span>
+            </button>
+          } @else {
+            <a routerLink="/login" routerLinkActive="active" class="btn btn-outline-gold btn-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                <polyline points="10 17 15 12 10 7"></polyline>
+                <line x1="15" y1="12" x2="3" y2="12"></line>
+              </svg>
+              <span>Applicant Login</span>
+            </a>
+            <a routerLink="/staff-login" class="btn btn-outline-white btn-sm btn-staff-login">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <span>Staff Login</span>
+            </a>
+            <a routerLink="/application" class="btn btn-primary btn-sm">
+              <span>Apply Now</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+          }
+        </div>
+      </div>
+
+      <!-- Mobile Menu Toggle Button -->
+      <button
+        type="button"
+        class="mobile-toggle"
+        (click)="toggleMenu()"
+        [attr.aria-expanded]="isMenuOpen()"
+        aria-controls="mobile-nav-menu"
+        aria-label="Toggle navigation menu"
+      >
+        <span class="hamburger-bar" [class.open]="isMenuOpen()"></span>
+        <span class="hamburger-bar" [class.open]="isMenuOpen()"></span>
+        <span class="hamburger-bar" [class.open]="isMenuOpen()"></span>
+      </button>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div
+      id="mobile-nav-menu"
+      class="mobile-menu"
+      [class.active]="isMenuOpen()"
+      [attr.aria-hidden]="!isMenuOpen()"
+    >
+      <ul class="mobile-nav-list">
+        <li>
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()" class="mobile-nav-link">Home</a>
+        </li>
+        <li>
+          <a routerLink="/" fragment="programmes" (click)="closeMenu()" class="mobile-nav-link">Programmes</a>
+        </li>
+        <li>
+          <a routerLink="/" fragment="process" (click)="closeMenu()" class="mobile-nav-link">Admission Steps</a>
+        </li>
+        <li>
+          <a routerLink="/" fragment="about" (click)="closeMenu()" class="mobile-nav-link">About UEM</a>
+        </li>
+        <li class="mobile-divider"></li>
+        @if (authService.isAuthenticated()) {
+          <li class="mobile-user-info">
+            <span>Signed in as <strong>{{ authService.currentUser()?.name }}</strong> ({{ authService.currentUser()?.role === 'admin' ? 'Administrator' : authService.currentUser()?.role === 'verification_officer' ? 'Verification Officer' : 'Applicant' }})</span>
+          </li>
+          @if (authService.currentUser()?.role === 'admin') {
+            <li>
+              <a routerLink="/admin" (click)="closeMenu()" class="btn btn-gold btn-block">Admin Dashboard</a>
+            </li>
+          } @else if (authService.currentUser()?.role === 'verification_officer') {
+            <li>
+              <a routerLink="/verification" (click)="closeMenu()" class="btn btn-gold btn-block">Verification Dashboard</a>
+            </li>
+          } @else {
+            <li>
+              <a routerLink="/application" (click)="closeMenu()" class="btn btn-outline-gold btn-block">Application Form</a>
+            </li>
+            <li>
+              <a routerLink="/status" (click)="closeMenu()" class="btn btn-gold btn-block">Application Status</a>
+            </li>
+          }
+          <li>
+            <button type="button" class="btn btn-outline-gold btn-block" (click)="onLogout()">Sign Out</button>
+          </li>
+        } @else {
+          <li>
+            <a routerLink="/login" (click)="closeMenu()" class="btn btn-outline-gold btn-block">Applicant Login</a>
+          </li>
+          <li>
+            <a routerLink="/staff-login" (click)="closeMenu()" class="btn btn-outline-white btn-block btn-staff-login">Staff Login</a>
+          </li>
+          <li>
+            <a routerLink="/application" (click)="closeMenu()" class="btn btn-primary btn-block">Apply for Admission</a>
+          </li>
+        }
+      </ul>
+    </div>
+  </nav>
+</header>

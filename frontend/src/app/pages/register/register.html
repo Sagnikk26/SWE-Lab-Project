@@ -1,0 +1,231 @@
+<div class="auth-page">
+  <div class="container auth-container">
+    <div class="auth-card register-card">
+      <!-- Card Header -->
+      <div class="auth-header">
+        <a routerLink="/" class="auth-crest" aria-label="UEM Admission Portal Home">
+          <span>U</span>
+        </a>
+        <h1 class="auth-title">New Applicant Registration</h1>
+        <p class="auth-desc">Register your candidate account to start and track your UEM admission application.</p>
+      </div>
+
+      <!-- Error Notification -->
+      @if (errorMessage()) {
+        <div class="alert alert-error" role="alert" aria-live="assertive">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <div class="alert-text">{{ errorMessage() }}</div>
+        </div>
+      }
+
+      <!-- Success Notification -->
+      @if (successMessage()) {
+        <div class="alert alert-success" role="status" aria-live="polite">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <div class="alert-content">
+            <p class="alert-title">{{ successMessage() }}</p>
+            <div class="alert-actions">
+              <a routerLink="/login" class="btn btn-navy btn-sm">Proceed to Applicant Sign In &rarr;</a>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Registration Form -->
+      <form (submit)="onRegisterSubmit($event)" class="auth-form" aria-label="New Applicant Registration Form">
+        <!-- Candidate Full Name -->
+        <div class="form-group">
+          <label for="reg-name">Candidate Full Name <span class="required" aria-hidden="true">*</span></label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              id="reg-name"
+              name="name"
+              class="form-control"
+              placeholder="e.g. Sagnik Roy"
+              autocomplete="name"
+              [(ngModel)]="name"
+              [disabled]="isLoading()"
+              required
+            />
+          </div>
+          <span class="form-hint">Enter your full legal name as it appears on Class 10/12 records</span>
+        </div>
+
+        <!-- Email & Phone (Grid on desktop) -->
+        <div class="form-grid-2">
+          <!-- Email Field -->
+          <div class="form-group">
+            <label for="reg-email">Email Address <span class="required" aria-hidden="true">*</span></label>
+            <div class="input-wrapper">
+              <input
+                type="email"
+                id="reg-email"
+                name="email"
+                class="form-control"
+                placeholder="candidate@example.com"
+                autocomplete="email"
+                [(ngModel)]="email"
+                [disabled]="isLoading()"
+                required
+              />
+            </div>
+            <span class="form-hint">Official updates and OTPs will be sent here</span>
+          </div>
+
+          <!-- Mobile Phone Number -->
+          <div class="form-group">
+            <label for="reg-phone">Mobile Phone Number <span class="required" aria-hidden="true">*</span></label>
+            <div class="input-wrapper">
+              <input
+                type="tel"
+                id="reg-phone"
+                name="phone"
+                class="form-control"
+                placeholder="+91 98765 43210"
+                autocomplete="tel"
+                [(ngModel)]="phone"
+                [disabled]="isLoading()"
+                required
+              />
+            </div>
+            <span class="form-hint">Active 10-digit mobile number</span>
+          </div>
+        </div>
+
+        <!-- Intended Programme -->
+        <div class="form-group">
+          <label for="reg-programme">Intended Programme of Study <span class="required" aria-hidden="true">*</span></label>
+          <div class="input-wrapper">
+            <select
+              id="reg-programme"
+              name="programme"
+              class="form-control"
+              [(ngModel)]="programme"
+              [disabled]="isLoading()"
+              required
+            >
+              <option value="" disabled selected>-- Select your preferred programme --</option>
+              <option value="B.Tech - Computer Science & Engineering">B.Tech - Computer Science &amp; Engineering</option>
+              <option value="B.Tech - CSE (Artificial Intelligence & Machine Learning)">B.Tech - CSE (Artificial Intelligence &amp; ML)</option>
+              <option value="B.Tech - Electronics & Communication Engineering">B.Tech - Electronics &amp; Communication Engineering</option>
+              <option value="Bachelor of Computer Applications (BCA)">Bachelor of Computer Applications (BCA)</option>
+              <option value="Bachelor of Business Administration (BBA)">Bachelor of Business Administration (BBA)</option>
+              <option value="Master of Computer Applications (MCA)">Master of Computer Applications (MCA)</option>
+              <option value="Master of Business Administration (MBA)">Master of Business Administration (MBA)</option>
+            </select>
+          </div>
+          <span class="form-hint">You can adjust programme preferences in the application form later</span>
+        </div>
+
+        <!-- Passwords Grid -->
+        <div class="form-grid-2">
+          <!-- Password Field -->
+          <div class="form-group">
+            <label for="reg-password">Password <span class="required" aria-hidden="true">*</span></label>
+            <div class="input-wrapper password-wrapper">
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                id="reg-password"
+                name="password"
+                class="form-control"
+                placeholder="At least 6 characters"
+                autocomplete="new-password"
+                [(ngModel)]="password"
+                [disabled]="isLoading()"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-pass-btn"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+                [disabled]="isLoading()"
+              >
+                @if (showPassword()) {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                }
+              </button>
+            </div>
+          </div>
+
+          <!-- Confirm Password Field -->
+          <div class="form-group">
+            <label for="reg-confirm">Confirm Password <span class="required" aria-hidden="true">*</span></label>
+            <div class="input-wrapper">
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                id="reg-confirm"
+                name="confirmPassword"
+                class="form-control"
+                placeholder="Re-enter password"
+                autocomplete="new-password"
+                [(ngModel)]="confirmPassword"
+                [disabled]="isLoading()"
+                required
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Terms and Declaration Checkbox -->
+        <div class="form-checkbox">
+          <input
+            type="checkbox"
+            id="reg-terms"
+            name="terms"
+            [(ngModel)]="terms"
+            [disabled]="isLoading()"
+            required
+          />
+          <label for="reg-terms">
+            I declare that the details provided are accurate and I agree to adhere to the university admission guidelines.
+          </label>
+        </div>
+
+        <!-- Submit Button with Loading Spinner -->
+        <div class="form-action">
+          <button
+            type="submit"
+            class="btn btn-primary btn-block btn-lg"
+            [disabled]="isLoading()"
+          >
+            @if (isLoading()) {
+              <span class="spinner" aria-hidden="true"></span>
+              <span>Creating Account...</span>
+            } @else {
+              <span>Create Applicant Account</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            }
+          </button>
+        </div>
+      </form>
+
+      <!-- Footer Info / Switch to Login -->
+      <div class="auth-footer">
+        <p>Already created an admission portal account?</p>
+        <a routerLink="/login" class="auth-switch-link">
+          <strong>Sign In to Your Account</strong> &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

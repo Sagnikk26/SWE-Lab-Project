@@ -1,0 +1,90 @@
+<footer class="footer">
+  <div class="container footer-content">
+    <div class="footer-grid">
+      <!-- Col 1: University Identity -->
+      <div class="footer-col col-brand">
+        <div class="footer-brand">
+          <div class="brand-crest">U</div>
+          <div class="brand-title">
+            <span class="main-title">University of Engineering & Management</span>
+            <span class="sub-title">Excellence in Engineering & Management</span>
+          </div>
+        </div>
+        <p class="brand-desc">
+          A premier higher education institution dedicated to academic excellence, innovative research, and producing industry-ready professionals across disciplines.
+        </p>
+        <div class="accreditations">
+          <span class="tag">NAAC Accredited</span>
+          <span class="tag">AICTE Approved</span>
+          <span class="tag">UGC Recognized</span>
+        </div>
+      </div>
+
+      <!-- Col 2: Quick Links -->
+      <div class="footer-col">
+        <h3 class="col-heading">Admission Portal</h3>
+        <ul class="footer-links">
+          <li><a routerLink="/">Home</a></li>
+          <li><a routerLink="/" fragment="programmes">Programmes Offered</a></li>
+          <li><a routerLink="/" fragment="process">Admission Workflow</a></li>
+          <li><a routerLink="/" fragment="about">About UEM</a></li>
+          @if (authService.isAuthenticated()) {
+            @if (authService.currentUser()?.role === 'admin') {
+              <li><a routerLink="/admin" class="footer-staff-link">Admin Dashboard</a></li>
+              <li><a routerLink="/verification" class="footer-staff-link">Verification Portal</a></li>
+            } @else if (authService.currentUser()?.role === 'verification_officer') {
+              <li><a routerLink="/verification" class="footer-staff-link">Verification Dashboard</a></li>
+            } @else {
+              <!-- Authenticated applicant: hide Staff Login -->
+              <li><a routerLink="/application">My Application Status</a></li>
+            }
+          } @else {
+            <li><a routerLink="/login">Applicant Login</a></li>
+            <li><a routerLink="/staff-login" class="footer-staff-link">Staff Login</a></li>
+            <li><a routerLink="/register">New Candidate Registration</a></li>
+            <li><a routerLink="/application">Online Application Form</a></li>
+          }
+        </ul>
+      </div>
+
+      <!-- Col 3: Key Disciplines -->
+      <div class="footer-col">
+        <h3 class="col-heading">Key Disciplines</h3>
+        <ul class="footer-links">
+          <li><span>B.Tech Computer Science & Engineering</span></li>
+          <li><span>B.Tech CSE (Artificial Intelligence & ML)</span></li>
+          <li><span>B.Tech Electronics & Communication</span></li>
+          <li><span>Bachelor of Computer Applications (BCA)</span></li>
+          <li><span>Master of Computer Applications (MCA)</span></li>
+          <li><span>Master of Business Administration (MBA)</span></li>
+        </ul>
+      </div>
+
+      <!-- Col 4: Campus & Helpdesk -->
+      <div class="footer-col">
+        <h3 class="col-heading">Campuses & Helpdesk</h3>
+        <div class="campus-item">
+          <strong>UEM Kolkata:</strong>
+          <p>University Area, Plot No. III - B/5, Main Arterial Road, New Town, Action Area - III, Kolkata, West Bengal 700160</p>
+        </div>
+        <div class="campus-item">
+          <strong>UEM Jaipur:</strong>
+          <p>Gurukul, 6 kms from Chomu on Sikar Road (NH-52), Udaipuria Mod, Jaipur, Rajasthan 303807</p>
+        </div>
+        <div class="helpdesk-contact">
+          <span>Inquiries: <strong>admissions&#64;uem.edu.in</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sub-footer / Copyright -->
+    <div class="sub-footer">
+      <div class="sub-left">
+        <p>&copy; {{ currentYear }} University of Engineering & Management (UEM). All rights reserved.</p>
+      </div>
+      <div class="sub-right">
+        <span class="project-tag">Software Engineering Lab Project Demonstration</span>
+      </div>
+    </div>
+  </div>
+</footer>

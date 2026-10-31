@@ -1,0 +1,127 @@
+<div class="staff-selection-page">
+  <div class="container staff-selection-container">
+    <div class="staff-header text-center">
+      <div class="crest-wrapper">
+        <div class="brand-crest">
+          <span class="crest-letter">U</span>
+        </div>
+      </div>
+      <span class="badge-mini">Academic Staff Portals</span>
+      <h1 class="staff-title">University Staff &amp; Administrative Login</h1>
+      <p class="staff-subtitle">
+        Select your designated departmental portal to access verification desks, admission committee workflows, and administrative dashboards.
+      </p>
+    </div>
+
+    <div class="portal-options-grid">
+      <!-- Option 1: Admin Login -->
+      <div class="portal-card card-admin">
+        <div class="portal-card-header">
+          <div class="portal-icon admin-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+          </div>
+          <span class="portal-badge">Central Administration</span>
+        </div>
+        <div class="portal-card-body">
+          <h2 class="portal-name">Admin Login</h2>
+          <p class="portal-description">
+            Dedicated portal for University Admissions Committee and Central Administrators. Manage applicants, review admission stats, grant final selections, and provision staff.
+          </p>
+          <ul class="portal-features">
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Application decision management (Select / Reject)</span>
+            </li>
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Admission metrics &amp; aggregate reporting</span>
+            </li>
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Staff account provisioning &amp; role administration</span>
+            </li>
+          </ul>
+        </div>
+        <div class="portal-card-footer">
+          <a routerLink="/staff-login/admin" class="btn btn-gold btn-block btn-lg btn-admin-option">
+            <span>Admin Login</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Option 2: Verification Officer Login -->
+      <div class="portal-card card-officer">
+        <div class="portal-card-header">
+          <div class="portal-icon officer-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <span class="portal-badge">Verification Desk</span>
+        </div>
+        <div class="portal-card-body">
+          <h2 class="portal-name">Verification Officer Login</h2>
+          <p class="portal-description">
+            Dedicated portal for Document Verification Officers. Inspect candidate academic credentials, verify uploaded transcripts and certificates, and record audit observations.
+          </p>
+          <ul class="portal-features">
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Document inspection &amp; inline secure preview</span>
+            </li>
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Mandatory audit remarks for rejected credentials</span>
+            </li>
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Application status progression to 'Verified'</span>
+            </li>
+          </ul>
+        </div>
+        <div class="portal-card-footer">
+          <a routerLink="/staff-login/verification" class="btn btn-primary btn-block btn-lg btn-officer-option">
+            <span>Verification Officer Login</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Helpful navigation for candidates -->
+    <div class="staff-selection-footer text-center">
+      <p class="applicant-redirect-note">
+        Are you an admission candidate or applicant?
+        <a routerLink="/login" class="link-applicant">Go to Applicant Login</a>
+        or
+        <a routerLink="/" class="link-home">Return to Home Page</a>
+      </p>
+    </div>
+  </div>
+</div>
