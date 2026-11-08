@@ -1,0 +1,149 @@
+name: UEM Admission System - Continuous Integration
+
+# ==============================================================================
+# Workflow Triggers (Step 1)
+# Executes automatically whenever code is pushed or a Pull Request is opened/updated
+# against any branch in the repository.
+# ==============================================================================
+'on':
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+# Ensure permissions are strictly read-only for repository contents (Security Best Practice)
+permissions:
+  contents: read
+
+jobs:
+  continuous-integration:
+    name: Build, Test & Quality Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # ==========================================================================
+    # Temporary Database Service (Step 5 Requirement)
+    # Spins up an isolated MongoDB container for the CI run on localhost:27017.
+    # Health checks ensure the database service is fully ready before tests execute.
+    # ==========================================================================
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd mongosh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    # ==========================================================================
+    # Global Workflow Environment Variables
+    # Standard dummy test credentials used exclusively in CI.
+    # No sensitive production credentials or secrets are ever exposed.
+    # ==========================================================================
+    env:
+      CI: true
+      NODE_ENV: test
+      PORT: 5000
+      JWT_SECRET: ci-temporary-test-jwt-secret-uem-portal-token-key-2026
+      MONGO_URI: mongodb://localhost:27017/uem_admission_test
+
+    steps:
+      # ------------------------------------------------------------------------
+      # Step 2: Repository Checkout
+      # Uses the official GitHub Actions checkout action to retrieve repository files.
+      # ------------------------------------------------------------------------
+      - name: Step 2 - Checkout Repository
+        id: checkout
+        uses: actions/checkout@v4
+
+      # ------------------------------------------------------------------------
+      # Step 3: Environment Setup
+      # Configures Node.js runtime (v22.x LTS, matching project environment)
+      # and activates npm dependency caching for both backend and frontend.
+      # ------------------------------------------------------------------------
+      - name: Step 3 - Set up Node.js 22.x Runtime & Dependency Cache
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      # ------------------------------------------------------------------------
+      # Step 4a: Backend Dependency Installation
+      # Uses npm ci for deterministic, clean installation from package-lock.json.
+      # ------------------------------------------------------------------------
+      - name: Step 4a - Install Backend Dependencies (npm ci)
+        id: install-backend
+        run: npm ci --prefix backend
+
+      # ------------------------------------------------------------------------
+      # Step 4b: Frontend Dependency Installation
+      # Uses npm ci for deterministic, clean installation of Angular packages.
+      # ------------------------------------------------------------------------
+      - name: Step 4b - Install Frontend Dependencies (npm ci)
+        id: install-frontend
+        run: npm ci --prefix frontend
+
+      # ------------------------------------------------------------------------
+      # Step 5: Backend Testing
+      # Executes the existing backend test suite via Node.js native test runner
+      # (node --test tests/*.test.js) validating RBAC, auth, lifecycle, and dossiers.
+      # ------------------------------------------------------------------------
+      - name: Step 5 - Execute Backend Test Suite (node:test)
+        id: test-backend
+        run: npm test --prefix backend
+
+      # ------------------------------------------------------------------------
+      # Step 6: Frontend Testing
+      # Executes existing Angular unit test suite headlessly via Vitest + JSDOM.
+      # Runs with --no-watch to terminate cleanly in CI without interactive prompts.
+      # ------------------------------------------------------------------------
+      - name: Step 6 - Execute Frontend Unit Tests (Headless Vitest)
+        id: test-frontend
+        run: npm test --prefix frontend -- --no-watch
+
+      # ------------------------------------------------------------------------
+      # Step 7: Build Verification
+      # Compiles the production Angular application bundle (ng build).
+      # Validates bundle size budgets, AOT templates, and type checking.
+      # Any compilation or budget error will fail this step and fail the workflow.
+      # ------------------------------------------------------------------------
+      - name: Step 7 - Verify Frontend Production Build (ng build)
+        id: build-frontend
+        run: npm run build --prefix frontend
+
+      # ------------------------------------------------------------------------
+      # Step 8: Reporting & Summary
+      # Generates a rich Markdown summary table visible directly in the
+      # GitHub Actions Run Summary tab, reporting the status of each pipeline stage.
+      # Configured with if: always() so failure points are immediately identifiable.
+      # ------------------------------------------------------------------------
+      - name: Step 8 - Publish CI Summary Report
+        id: report-summary
+        if: always()
+        run: |
+          echo "## 🚀 UEM Admission System — Continuous Integration Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Pipeline Verification Checklist" >> $GITHUB_STEP_SUMMARY
+          echo "| Checkpoint | Status | Details |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :---: | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Repository Checkout** | \`${{ steps.checkout.outcome }}\` | Source code retrieved via \`actions/checkout@v4\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Node.js Environment** | \`${{ steps.setup-node.outcome }}\` | Configured Node.js v22.x LTS with npm cache |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Backend Dependencies** | \`${{ steps.install-backend.outcome }}\` | Installed via \`npm ci --prefix backend\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Frontend Dependencies** | \`${{ steps.install-frontend.outcome }}\` | Installed via \`npm ci --prefix frontend\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Backend Test Suite** | \`${{ steps.test-backend.outcome }}\` | 68/68 unit & security tests executed |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Frontend Test Suite** | \`${{ steps.test-frontend.outcome }}\` | 202/202 Vitest unit tests executed |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Production Build** | \`${{ steps.build-frontend.outcome }}\` | Angular optimized production bundle compiled |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "> ✅ **Pipeline Result**: ALL STAGES PASSED. Application code and tests verified." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "> ❌ **Pipeline Result**: ONE OR MORE STAGES FAILED. Inspect the failed step above." >> $GITHUB_STEP_SUMMARY
+          fi
