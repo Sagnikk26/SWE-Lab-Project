@@ -38,6 +38,9 @@ coverage/
 */coverage/
 *.tsbuildinfo
 .sass-cache/
+*.xlsx
+*.xls
+UEM_Admission_System_Test_Audit_Report.xlsx
 
 # Uploaded applicant & student documents (private/confidential)
 uploads/**
