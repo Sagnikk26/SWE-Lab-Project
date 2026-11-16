@@ -113,11 +113,11 @@ All test suites and build scripts have been validated:
 ```bash
 # 1. Run Backend Tests (Node.js test runner)
 npm --prefix backend test
-# Result: 68/68 passed (auth, RBAC, draft exclusion, document replacement chain)
+# Result: 69/69 passed (auth, RBAC, draft exclusion, document replacement chain) across 14 test suites
 
 # 2. Run Frontend Tests (Vitest)
 npm --prefix frontend test -- --no-watch
-# Result: 202/202 passed across 19 test suites
+# Result: 204/204 passed across 19 test suites
 
 # 3. Production Build
 npm --prefix frontend run build
