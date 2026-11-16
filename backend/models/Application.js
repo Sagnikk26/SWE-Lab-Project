@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { PHONE_REGEX, PHONE_ERROR_MESSAGE } = require('../utils/phone');
 
 /**
  * Sub-schema for Residential Address
@@ -61,7 +62,7 @@ const personalDetailsSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Phone number is required'],
       trim: true,
-      match: [/^\+?[0-9]{10,15}$/, 'Please enter a valid phone number (10 to 15 digits)'],
+      match: [PHONE_REGEX, PHONE_ERROR_MESSAGE],
     },
     address: {
       type: addressSchema,

@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { Application, Document } = require('../models');
 const { authenticate } = require('../middleware/auth');
+const { validateAndNormalizePhone } = require('../utils/phone');
 
 const router = express.Router();
 
@@ -101,10 +102,9 @@ const validateApplicationPayload = (body) => {
   if (!personalDetails.phone || typeof personalDetails.phone !== 'string') {
     return 'Phone number is required in personal details.';
   }
-  const trimmedPhone = personalDetails.phone.trim();
-  const phoneRegex = /^\+?[0-9]{10,15}$/;
-  if (!phoneRegex.test(trimmedPhone)) {
-    return 'Please enter a valid phone number (10 to 15 digits, optional leading +).';
+  const phoneValidation = validateAndNormalizePhone(personalDetails.phone);
+  if (!phoneValidation.valid) {
+    return phoneValidation.error;
   }
 
   // address
@@ -283,7 +283,7 @@ router.post('/', authenticate, async (req, res) => {
       existing.personalDetails = {
         fullName: personalDetails.fullName.trim(),
         dateOfBirth: new Date(personalDetails.dateOfBirth),
-        phone: personalDetails.phone.trim(),
+        phone: validateAndNormalizePhone(personalDetails.phone).normalized,
         address: {
           line1: personalDetails.address.line1.trim(),
           line2: personalDetails.address.line2 ? personalDetails.address.line2.trim() : '',
@@ -345,7 +345,7 @@ router.post('/', authenticate, async (req, res) => {
       personalDetails: {
         fullName: personalDetails.fullName.trim(),
         dateOfBirth: new Date(personalDetails.dateOfBirth),
-        phone: personalDetails.phone.trim(),
+        phone: validateAndNormalizePhone(personalDetails.phone).normalized,
         address: {
           line1: personalDetails.address.line1.trim(),
           line2: personalDetails.address.line2 ? personalDetails.address.line2.trim() : '',
@@ -455,7 +455,7 @@ router.put('/:id', authenticate, async (req, res) => {
     application.personalDetails = {
       fullName: personalDetails.fullName.trim(),
       dateOfBirth: new Date(personalDetails.dateOfBirth),
-      phone: personalDetails.phone.trim(),
+      phone: validateAndNormalizePhone(personalDetails.phone).normalized,
       address: {
         line1: personalDetails.address.line1.trim(),
         line2: personalDetails.address.line2 ? personalDetails.address.line2.trim() : '',

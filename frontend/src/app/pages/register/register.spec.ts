@@ -15,7 +15,7 @@ describe('RegisterComponent', () => {
     name: 'Sagnik Applicant',
     email: 'sagnik.applicant@example.com',
     role: 'applicant',
-    phone: '+919876543210',
+    phone: '+91 9876543210',
     intendedProgramme: 'B.Tech - Computer Science & Engineering'
   };
 
@@ -125,15 +125,54 @@ describe('RegisterComponent', () => {
   it('should validate phone number format if provided', () => {
     component.name = 'Valid Name';
     component.email = 'valid@example.com';
-    component.phone = '123'; // Too short / invalid phone
     component.password = 'password123';
     component.confirmPassword = 'password123';
     component.terms = true;
 
-    component.onRegisterSubmit();
+    const invalidPhones = [
+      '123',               // Too short
+      '123456789',         // 9 digits
+      '98765432101',       // 11 digits without spaces
+      '987654321012345',   // 15 digits without spaces
+      '+919876543210',     // Country code without space/hyphen separator
+      '91 9876543210',     // Country code missing leading '+'
+      '+91 987654321',     // 9 digits after country code
+      '+91 98765432101',   // 11 digits after country code
+      '+1234 9876543210',  // Country code > 3 digits
+      'abc9876543'         // Non-digit characters
+    ];
 
-    expect(component.errorMessage()).toContain('valid 10 to 15 digit mobile phone number');
-    expect(mockAuthService.register).not.toHaveBeenCalled();
+    for (const phone of invalidPhones) {
+      component.errorMessage.set(null);
+      component.phone = phone;
+      component.onRegisterSubmit();
+
+      expect(component.errorMessage()).toContain('valid 10 digit phone number');
+      expect(mockAuthService.register).not.toHaveBeenCalled();
+    }
+  });
+
+  it('should accept valid plain 10-digit and country-code-separated phone numbers and normalize formatting', () => {
+    mockAuthService.register.mockReturnValue(of(mockAuthResponse));
+
+    component.name = 'Sagnik Applicant';
+    component.email = 'sagnik.applicant@example.com';
+    component.password = 'SecurePassword123';
+    component.confirmPassword = 'SecurePassword123';
+    component.programme = 'B.Tech - Computer Science & Engineering';
+    component.terms = true;
+
+    component.phone = '98765 43210';
+    component.onRegisterSubmit();
+    expect(mockAuthService.register).toHaveBeenLastCalledWith(
+      expect.objectContaining({ phone: '9876543210' })
+    );
+
+    component.phone = '+1-415-555-2671';
+    component.onRegisterSubmit();
+    expect(mockAuthService.register).toHaveBeenLastCalledWith(
+      expect.objectContaining({ phone: '+1 4155552671' })
+    );
   });
 
   it('should successfully register, preserve intended programme, and immediately redirect to home page', () => {
@@ -141,7 +180,7 @@ describe('RegisterComponent', () => {
 
     component.name = 'Sagnik Applicant';
     component.email = 'sagnik.applicant@example.com';
-    component.phone = '+919876543210';
+    component.phone = '+91 98765 43210';
     component.password = 'SecurePassword123';
     component.confirmPassword = 'SecurePassword123';
     component.programme = 'B.Tech - Computer Science & Engineering';
@@ -153,7 +192,7 @@ describe('RegisterComponent', () => {
       name: 'Sagnik Applicant',
       email: 'sagnik.applicant@example.com',
       password: 'SecurePassword123',
-      phone: '+919876543210',
+      phone: '+91 9876543210',
       programme: 'B.Tech - Computer Science & Engineering'
     });
     expect(mockAuthService.setIntendedProgramme).toHaveBeenCalledWith('B.Tech - Computer Science & Engineering');

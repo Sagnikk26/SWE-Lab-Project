@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { PHONE_REGEX, PHONE_ERROR_MESSAGE } = require('../utils/phone');
 
 /**
  * User Schema
@@ -41,6 +42,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: '',
+      validate: {
+        validator: (value) => !value || PHONE_REGEX.test(value),
+        message: PHONE_ERROR_MESSAGE,
+      },
     },
     intendedProgramme: {
       type: String,

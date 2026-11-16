@@ -240,11 +240,11 @@
                     id="phone"
                     formControlName="phone"
                     class="form-control"
-                    placeholder="e.g. +919876543210"
+                    placeholder="e.g. +91 9876543210"
                     [class.is-invalid]="applicationForm.get('personalDetails.phone')?.invalid && applicationForm.get('personalDetails.phone')?.touched"
                   />
                   @if (applicationForm.get('personalDetails.phone')?.invalid && applicationForm.get('personalDetails.phone')?.touched) {
-                    <div class="field-error" role="alert">Enter a valid 10–15 digit phone number.</div>
+                    <div class="field-error" role="alert">Enter a valid 10 digit phone number (e.g. 9876543210 or +91 9876543210).</div>
                   }
                 </div>
               </div>

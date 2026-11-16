@@ -16,6 +16,7 @@ import {
   CreateApplicationPayload
 } from '../../services/application.service';
 import { AuthService } from '../../services/auth.service';
+import { phoneValidator, normalizePhone } from '../../utils/phone';
 
 @Component({
   selector: 'app-application',
@@ -166,7 +167,7 @@ export class ApplicationComponent implements OnInit {
         ]),
         phone: new FormControl('', [
           Validators.required,
-          Validators.pattern(/^\+?[0-9]{10,15}$/)
+          phoneValidator
         ]),
         address: new FormGroup({
           line1: new FormControl('', [
@@ -575,7 +576,7 @@ export class ApplicationComponent implements OnInit {
       personalDetails: {
         fullName: formValue.personalDetails!.fullName!.trim(),
         dateOfBirth: formValue.personalDetails!.dateOfBirth!,
-        phone: formValue.personalDetails!.phone!.trim(),
+        phone: normalizePhone(formValue.personalDetails!.phone!),
         address: {
           line1: formValue.personalDetails!.address!.line1!.trim(),
           line2: formValue.personalDetails!.address!.line2 ? formValue.personalDetails!.address!.line2.trim() : '',

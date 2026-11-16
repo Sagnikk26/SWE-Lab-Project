@@ -44,7 +44,7 @@ describe('ApplicationComponent', () => {
     comp.applicationForm.get('selectedProgramme')?.setValue('B.Tech - Computer Science & Engineering');
     comp.applicationForm.get('personalDetails.fullName')?.setValue('Sagnik Applicant');
     comp.applicationForm.get('personalDetails.dateOfBirth')?.setValue('2002-05-15');
-    comp.applicationForm.get('personalDetails.phone')?.setValue('+919876543210');
+    comp.applicationForm.get('personalDetails.phone')?.setValue('+91 9876543210');
     comp.applicationForm.get('personalDetails.address.line1')?.setValue('123 University Road');
     comp.applicationForm.get('personalDetails.address.city')?.setValue('Kolkata');
     comp.applicationForm.get('personalDetails.address.state')?.setValue('West Bengal');
@@ -119,7 +119,7 @@ describe('ApplicationComponent', () => {
         name: 'Sagnik Applicant',
         email: 'sagnik@example.com',
         role: 'applicant',
-        phone: '+919876543210',
+        phone: '+91 9876543210',
         intendedProgramme: 'B.Tech - Computer Science & Engineering'
       }),
       getIntendedProgramme: () => 'B.Tech - Computer Science & Engineering',
@@ -129,7 +129,7 @@ describe('ApplicationComponent', () => {
         name: 'Sagnik Applicant',
         email: 'sagnik@example.com',
         role: 'applicant',
-        phone: '+919876543210',
+        phone: '+91 9876543210',
         intendedProgramme: 'B.Tech - Computer Science & Engineering'
       }))
     };
@@ -185,6 +185,35 @@ describe('ApplicationComponent', () => {
 
     form.updateValueAndValidity();
     expect(form.errors?.['passingYearPrecedes']).toBe(true);
+  });
+
+  it('should enforce strict 10-digit phone validation with separated country code and normalize on buildPayload()', () => {
+    const phoneControl = component.applicationForm.get('personalDetails.phone');
+
+    const invalidPhones = [
+      '123456789',         // 9 digits
+      '98765432101',       // 11 digits without spaces
+      '987654321012345',   // 15 digits without spaces
+      '+919876543210',     // country code without space/hyphen
+      '91 9876543210',     // country code without leading '+'
+      '+91 987654321',     // 9 digits after country code
+      '+91 98765432101'    // 11 digits after country code
+    ];
+
+    for (const phone of invalidPhones) {
+      phoneControl?.setValue(phone);
+      expect(phoneControl?.valid).toBe(false);
+    }
+
+    const validPhones = ['9876543210', '98765 43210', '+91 9876543210', '+1-415-555-2671'];
+    for (const phone of validPhones) {
+      phoneControl?.setValue(phone);
+      expect(phoneControl?.valid).toBe(true);
+    }
+
+    populateValidForm(component);
+    phoneControl?.setValue('+91 98765 43210');
+    expect(component.buildPayload().personalDetails.phone).toBe('+91 9876543210');
   });
 
   it('should reject files with unsupported extensions during selection', () => {
@@ -439,7 +468,7 @@ describe('ApplicationComponent', () => {
       component.autofillFromRegistrationProfile();
 
       expect(component.applicationForm.get('personalDetails.fullName')?.value).toBe('Sagnik Applicant');
-      expect(component.applicationForm.get('personalDetails.phone')?.value).toBe('+919876543210');
+      expect(component.applicationForm.get('personalDetails.phone')?.value).toBe('+91 9876543210');
       expect(component.applicationForm.get('selectedProgramme')?.value).toBe('B.Tech - Computer Science & Engineering');
     });
 
@@ -451,7 +480,7 @@ describe('ApplicationComponent', () => {
         status: 'Draft',
         personalDetails: {
           fullName: 'Custom Draft Name',
-          phone: '+919111122222',
+          phone: '+91 9111122222',
           dateOfBirth: '2001-01-01',
           address: {
             line1: '99 Custom Lane',
@@ -477,7 +506,7 @@ describe('ApplicationComponent', () => {
 
       // Ensure draft values are strictly preserved and NOT overwritten by user profile defaults
       expect(component.applicationForm.get('personalDetails.fullName')?.value).toBe('Custom Draft Name');
-      expect(component.applicationForm.get('personalDetails.phone')?.value).toBe('+919111122222');
+      expect(component.applicationForm.get('personalDetails.phone')?.value).toBe('+91 9111122222');
       expect(component.applicationForm.get('selectedProgramme')?.value).toBe('Master of Computer Applications (MCA)');
       expect(component.activeStep()).toBe('documents');
     });

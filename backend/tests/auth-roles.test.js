@@ -2,6 +2,8 @@ const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
 const jwt = require('jsonwebtoken');
 const { authenticate, authorize } = require('../middleware/auth');
+const { validateAndNormalizePhone } = require('../utils/phone');
+const User = require('../models/User');
 
 // Ensure a test JWT_SECRET is set for the test run
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret_uem_portal_2026';
@@ -607,14 +609,14 @@ describe('Registration Data Persistence & Password Protection', () => {
       email: 'sagnik.roy@example.com',
       passwordHash: '$2b$10$encryptedHashValueForSecurity',
       role: 'applicant',
-      phone: '+919876543210',
+      phone: '+91 9876543210',
       intendedProgramme: 'B.Tech - Computer Science & Engineering',
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     assert.equal(user.name, 'Sagnik Roy');
-    assert.equal(user.phone, '+919876543210');
+    assert.equal(user.phone, '+91 9876543210');
     assert.equal(user.intendedProgramme, 'B.Tech - Computer Science & Engineering');
     assert.equal(user.role, 'applicant');
   });
@@ -626,7 +628,7 @@ describe('Registration Data Persistence & Password Protection', () => {
       email: 'candidate@example.com',
       passwordHash: '$2b$10$superSecretPasswordHashValue',
       role: 'applicant',
-      phone: '+919876543210',
+      phone: '+91 9876543210',
       intendedProgramme: 'Bachelor of Computer Applications (BCA)',
     };
 
@@ -637,21 +639,68 @@ describe('Registration Data Persistence & Password Protection', () => {
     assert.equal(serialized.passwordHash, undefined);
     assert.equal('passwordHash' in serialized, false);
     assert.equal(serialized.name, 'Applicant Candidate');
-    assert.equal(serialized.phone, '+919876543210');
+    assert.equal(serialized.phone, '+91 9876543210');
     assert.equal(serialized.intendedProgramme, 'Bachelor of Computer Applications (BCA)');
   });
 
   test('sanitizes and validates phone numbers during registration', () => {
-    const validPhones = ['+919876543210', '9876543210', '+14155552671'];
-    const invalidPhones = ['123', 'abc', '++91-1234'];
+    const validPhones = [
+      { input: '9876543210', expected: '9876543210' },
+      { input: '98765 43210', expected: '9876543210' },
+      { input: '987-654-3210', expected: '9876543210' },
+      { input: '+91 9876543210', expected: '+91 9876543210' },
+      { input: '+91 98765 43210', expected: '+91 9876543210' },
+      { input: '+1-415-555-2671', expected: '+1 4155552671' },
+      { input: '+971 5012345678', expected: '+971 5012345678' },
+    ];
+    const invalidPhones = [
+      '123',
+      '123456789',
+      '98765432101',
+      '987654321012345',
+      '+919876543210',
+      '+14155552671',
+      '91 9876543210',
+      '+91 987654321',
+      '+91 98765432101',
+      '+1234 9876543210',
+      '9---------',
+      'abc',
+      '++91 9876543210',
+    ];
 
-    const phoneRegex = /^\+?[0-9\s-]{10,18}$/;
-    for (const vp of validPhones) {
-      assert.equal(phoneRegex.test(vp), true);
+    for (const { input, expected } of validPhones) {
+      const result = validateAndNormalizePhone(input);
+      assert.equal(result.valid, true, `Expected ${input} to be valid`);
+      assert.equal(result.normalized, expected);
     }
     for (const ip of invalidPhones) {
-      assert.equal(phoneRegex.test(ip), false);
+      const result = validateAndNormalizePhone(ip);
+      assert.equal(result.valid, false, `Expected ${ip} to be invalid`);
     }
+  });
+
+  test('User schema rejects unspaced >10-digit phones while allowing empty or strict formats', async () => {
+    const baseUser = {
+      name: 'Test Applicant',
+      email: 'test@example.com',
+      passwordHash: '$2b$10$dummyhash',
+      role: 'applicant',
+    };
+
+    await new User({ ...baseUser, phone: '' }).validate();
+    await new User({ ...baseUser, phone: '9876543210' }).validate();
+    await new User({ ...baseUser, phone: '+91 9876543210' }).validate();
+
+    await assert.rejects(
+      () => new User({ ...baseUser, phone: '987654321012345' }).validate(),
+      (err) => Boolean(err?.errors?.phone)
+    );
+
+    await assert.rejects(
+      () => new User({ ...baseUser, phone: '+919876543210' }).validate(),
+      (err) => Boolean(err?.errors?.phone)
+    );
   });
 });
 

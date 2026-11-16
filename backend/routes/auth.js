@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 const { authenticate } = require('../middleware/auth');
+const { validateAndNormalizePhone } = require('../utils/phone');
 
 const router = express.Router();
 
@@ -68,16 +69,23 @@ router.post('/register', async (req, res) => {
 
     // Sanitize optional registration details
     let sanitizedPhone = '';
-    if (phone !== undefined && phone !== null && typeof phone === 'string' && phone.trim()) {
-      sanitizedPhone = phone.trim();
-      const phoneRegex = /^\+?[0-9\s-]{10,18}$/;
-      if (!phoneRegex.test(sanitizedPhone)) {
+    if (phone !== undefined && phone !== null) {
+      if (typeof phone !== 'string') {
         return res.status(400).json({
           success: false,
-          message: 'Please provide a valid 10 to 15 digit mobile phone number.',
+          message: 'Please provide a valid 10 digit phone number (e.g. 9876543210 or +91 9876543210).',
         });
       }
-      sanitizedPhone = sanitizedPhone.replace(/[\s-]/g, '');
+      if (phone.trim()) {
+        const phoneValidation = validateAndNormalizePhone(phone);
+        if (!phoneValidation.valid) {
+          return res.status(400).json({
+            success: false,
+            message: phoneValidation.error,
+          });
+        }
+        sanitizedPhone = phoneValidation.normalized;
+      }
     }
 
     const progInput = programme || intendedProgramme;

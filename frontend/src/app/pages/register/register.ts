@@ -2,6 +2,7 @@ import { Component, signal, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService, User } from '../../services/auth.service';
+import { PHONE_REGEX, PHONE_ERROR_MESSAGE, normalizePhone } from '../../utils/phone';
 
 @Component({
   selector: 'app-register',
@@ -72,12 +73,12 @@ export class RegisterComponent {
       return;
     }
 
-    const trimmedPhone = this.phone ? this.phone.trim().replace(/[\s-]/g, '') : '';
-    const phoneRegex = /^\+?[0-9]{10,15}$/;
-    if (this.phone && !phoneRegex.test(trimmedPhone)) {
-      this.errorMessage.set('Please enter a valid 10 to 15 digit mobile phone number.');
+    const rawPhone = typeof this.phone === 'string' ? this.phone.trim() : '';
+    if (rawPhone && !PHONE_REGEX.test(rawPhone)) {
+      this.errorMessage.set(PHONE_ERROR_MESSAGE);
       return;
     }
+    const trimmedPhone = rawPhone ? normalizePhone(rawPhone) : '';
 
     // Prevent duplicate submissions
     this.isLoading.set(true);
